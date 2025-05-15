@@ -1,8 +1,7 @@
 {
   "name": "@svifty7/eslint-config",
   "type": "module",
-  "version": "0.0.0",
-  "private": true,
+  "version": "0.0.1",
   "packageManager": "pnpm@10.10.0",
   "description": "ESLint config by svifty7 based on @antfu/eslint-config",
   "author": "svifty7 (https://github.com/svifty7)",
@@ -18,6 +17,14 @@
   "keywords": [
     "eslint-config"
   ],
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
+    }
+  },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "files": [
@@ -34,6 +41,10 @@
     "prepack": "nr build",
     "release": "bumpp && pnpm publish",
     "prepare": "simple-git-hooks"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
   },
   "peerDependencies": {
     "eslint": "^9.26.0"
