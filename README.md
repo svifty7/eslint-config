@@ -2,7 +2,7 @@
 
 Thanks to Anthony Fu for creating the original plugin [@antfu/eslint-config](https://github.com/antfu/eslint-config) which served as the basis for this project.
 
-[![npm](https://img.shields.io/npm/v/@antfu/eslint-config?color=444&label=)](https://npmjs.com/package/@antfu/eslint-config)
+![npm](https://img.shields.io/npm/v/%40svifty7%2Feslint-config?style=flat&logo=npm&logoColor=%23CB3837)
 
 An ESLint configuration based on [@antfu/eslint-config](https://github.com/antfu/eslint-config), tailored to my personal preferences and coding style. This configuration is integrated with Prettier. It supports Vue 3, TypeScript, JSON, YAML, TOML, Markdown, and other formats out of the box.
 
