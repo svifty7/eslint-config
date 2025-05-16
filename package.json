@@ -1,7 +1,7 @@
 {
   "name": "@svifty7/eslint-config",
   "type": "module",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "packageManager": "pnpm@10.10.0",
   "description": "ESLint config by svifty7 based on @antfu/eslint-config",
   "author": "svifty7 (https://github.com/svifty7)",
