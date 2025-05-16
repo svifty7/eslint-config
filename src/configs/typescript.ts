@@ -81,15 +81,15 @@ export async function typescript(
         parserOptions: {
           extraFileExtensions: componentExts.map((ext) => `.${ext}`),
           sourceType: 'module',
-          ...(typeAware ?
-            {
-              projectService: {
-                allowDefaultProject: ['./*.js'],
-                defaultProject: tsconfigPath,
-              },
-              tsconfigRootDir: process.cwd(),
-            }
-          : {}),
+          ...(typeAware
+            ? {
+                projectService: {
+                  allowDefaultProject: ['./*.js'],
+                  defaultProject: tsconfigPath,
+                },
+                tsconfigRootDir: process.cwd(),
+              }
+            : {}),
           ...(parserOptions as any),
         },
       },
@@ -105,12 +105,12 @@ export async function typescript(
         ts: pluginTs as any,
       },
     },
-    ...(isTypeAware ?
-      [
-        makeParser(false, filePatterns),
-        makeParser(true, filesTypeAware, ignoresTypeAware),
-      ]
-    : [makeParser(false, filePatterns)]),
+    ...(isTypeAware
+      ? [
+          makeParser(false, filePatterns),
+          makeParser(true, filesTypeAware, ignoresTypeAware),
+        ]
+      : [makeParser(false, filePatterns)]),
     {
       files: filePatterns,
       name: 'svifty7/typescript/rules',
@@ -212,32 +212,32 @@ export async function typescript(
         'ts/prefer-literal-enum-member': 'error',
         'ts/no-dynamic-delete': 'error',
 
-        ...(type === 'lib' ?
-          {
-            'ts/explicit-function-return-type': [
-              'error',
-              {
-                allowExpressions: true,
-                allowHigherOrderFunctions: true,
-                allowIIFEs: true,
-              },
-            ],
-          }
-        : {}),
+        ...(type === 'lib'
+          ? {
+              'ts/explicit-function-return-type': [
+                'error',
+                {
+                  allowExpressions: true,
+                  allowHigherOrderFunctions: true,
+                  allowIIFEs: true,
+                },
+              ],
+            }
+          : {}),
       },
     },
-    ...(isTypeAware ?
-      [
-        {
-          files: filesTypeAware,
-          ignores: ignoresTypeAware,
-          name: 'svifty7/typescript/rules-type-aware',
-          rules: {
-            ...typeAwareRules,
-            ...overridesTypeAware,
+    ...(isTypeAware
+      ? [
+          {
+            files: filesTypeAware,
+            ignores: ignoresTypeAware,
+            name: 'svifty7/typescript/rules-type-aware',
+            rules: {
+              ...typeAwareRules,
+              ...overridesTypeAware,
+            },
           },
-        },
-      ]
-    : []),
+        ]
+      : []),
   ];
 }
