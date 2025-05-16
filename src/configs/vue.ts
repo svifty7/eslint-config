@@ -55,9 +55,8 @@ export async function vue(
             jsx: true,
           },
           extraFileExtensions: ['.vue'],
-          parser:
-            options.typescript ?
-              ((await interopDefault(
+          parser: options.typescript
+            ? ((await interopDefault(
                 import('@typescript-eslint/parser'),
               )) as any)
             : null,
@@ -209,6 +208,7 @@ export async function vue(
         'vue-a11y/label-has-for': 'off',
         'vue-a11y/no-autofocus': 'off',
         'vue-a11y/form-control-has-label': 'off',
+        'vue-a11y/no-static-element-interactions': 'off',
         'vue-a11y/alt-text': 'error',
         'vue-a11y/aria-props': 'error',
         'vue-a11y/aria-role': 'error',
@@ -222,7 +222,6 @@ export async function vue(
         'vue-a11y/no-distracting-elements': 'error',
         'vue-a11y/no-redundant-roles': 'error',
         'vue-a11y/no-role-presentation-on-focusable': 'error',
-        'vue-a11y/no-static-element-interactions': 'error',
         'vue-a11y/role-has-required-aria-props': 'error',
         'vue-a11y/tabindex-no-positive': 'warn',
       },

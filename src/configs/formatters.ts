@@ -91,7 +91,7 @@ export async function formatters(
     endOfLine: 'lf',
     singleAttributePerLine: true,
     objectWrap: 'preserve',
-    experimentalTernaries: true,
+    experimentalTernaries: false,
     experimentalOperatorPosition: 'start',
   };
 
