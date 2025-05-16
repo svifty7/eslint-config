@@ -47,7 +47,13 @@
     "registry": "https://registry.npmjs.org/"
   },
   "peerDependencies": {
-    "eslint": "^9.26.0"
+    "eslint": "^9.26.0",
+    "vue": "^3.5.14"
+  },
+  "peerDependenciesMeta": {
+    "vue": {
+      "optional": true
+    }
   },
   "dependencies": {
     "@eslint-community/eslint-plugin-eslint-comments": "^4.5.0",
