@@ -1,3 +1,7 @@
+import { fileURLToPath } from 'node:url';
+
+import { resolveModule } from 'local-pkg';
+
 import type { StylisticCustomizeOptions } from '@stylistic/eslint-plugin';
 import type { BuiltInParserName } from 'prettier';
 
@@ -35,11 +39,28 @@ function mergePrettierOptions(
   options: PrettierOptions,
   overrides: PrettierOptions = {},
 ): PrettierOptions {
-  return {
+  const config = {
     ...options,
     ...overrides,
     plugins: [...(overrides.plugins || []), ...(options.plugins || [])],
   };
+
+  if (config.parser === 'xml') {
+    return {
+      parser: config.parser,
+      plugins: config.plugins,
+      bracketSameLine: config.bracketSameLine,
+      printWidth: config.printWidth,
+      singleAttributePerLine: config.singleAttributePerLine,
+      tabWidth: config.tabWidth,
+      xmlQuoteAttributes: config.xmlQuoteAttributes,
+      xmlSelfClosingSpace: config.xmlSelfClosingSpace,
+      xmlSortAttributesByKey: config.xmlSortAttributesByKey,
+      xmlWhitespaceSensitivity: config.xmlWhitespaceSensitivity,
+    };
+  }
+
+  return config;
 }
 
 export async function formatters(
@@ -72,13 +93,6 @@ export async function formatters(
     objectWrap: 'preserve',
     experimentalTernaries: true,
     experimentalOperatorPosition: 'start',
-  };
-
-  const prettierXmlOptions: Required<XmlPrettierConfig> = {
-    xmlQuoteAttributes: 'double',
-    xmlSelfClosingSpace: true,
-    xmlSortAttributesByKey: false,
-    xmlWhitespaceSensitivity: 'ignore',
   };
 
   const pluginFormat = await interopDefault(import('eslint-plugin-format'));
@@ -166,48 +180,6 @@ export async function formatters(
     },
   });
 
-  // XML
-  configs.push({
-    files: [GLOB_XML],
-    languageOptions: {
-      parser: parserPlain,
-    },
-    name: 'svifty7/formatter/xml',
-    rules: {
-      'format/prettier': [
-        'error',
-        mergePrettierOptions(
-          { ...prettierXmlOptions, ...prettierOptions },
-          {
-            parser: 'xml',
-            plugins: ['@prettier/plugin-xml'],
-          },
-        ),
-      ],
-    },
-  });
-
-  // SVG
-  configs.push({
-    files: [GLOB_SVG],
-    languageOptions: {
-      parser: parserPlain,
-    },
-    name: 'svifty7/formatter/svg',
-    rules: {
-      'format/prettier': [
-        'error',
-        mergePrettierOptions(
-          { ...prettierXmlOptions, ...prettierOptions },
-          {
-            parser: 'xml',
-            plugins: ['@prettier/plugin-xml'],
-          },
-        ),
-      ],
-    },
-  });
-
   // Markdown
   configs.push({
     files: [GLOB_MARKDOWN],
@@ -242,6 +214,65 @@ export async function formatters(
       ],
     },
   });
+
+  const prettierXmlOptions: Required<XmlPrettierConfig> = {
+    xmlQuoteAttributes: 'double',
+    xmlSelfClosingSpace: true,
+    xmlSortAttributesByKey: false,
+    xmlWhitespaceSensitivity: 'ignore',
+  };
+
+  const xmlPluginPath = resolveModule('@prettier/plugin-xml', {
+    paths: [fileURLToPath(import.meta.url)],
+  });
+
+  if (!xmlPluginPath) {
+    console.warn(
+      '[@svifty7/eslint-config] Failed to resolve @prettier/plugin-xml',
+    );
+  } else {
+    // XML
+    configs.push({
+      files: [GLOB_XML],
+      languageOptions: {
+        parser: parserPlain,
+      },
+      name: 'svifty7/formatter/xml',
+      rules: {
+        'format/prettier': [
+          'error',
+          mergePrettierOptions(
+            { ...prettierXmlOptions, ...prettierOptions },
+            {
+              parser: 'xml',
+              plugins: [xmlPluginPath],
+            },
+          ),
+        ],
+      },
+    });
+
+    // SVG
+    configs.push({
+      files: [GLOB_SVG],
+      languageOptions: {
+        parser: parserPlain,
+      },
+      name: 'svifty7/formatter/svg',
+      rules: {
+        'format/prettier': [
+          'error',
+          mergePrettierOptions(
+            { ...prettierXmlOptions, ...prettierOptions },
+            {
+              parser: 'xml',
+              plugins: [xmlPluginPath],
+            },
+          ),
+        ],
+      },
+    });
+  }
 
   return configs;
 }
