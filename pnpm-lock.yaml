@@ -104,6 +104,9 @@ importers:
       prettier:
         specifier: ^3.7.4
         version: 3.7.4
+      prettier-plugin-tailwindcss:
+        specifier: ^0.7.2
+        version: 0.7.2(prettier@3.7.4)
       toml-eslint-parser:
         specifier: ^0.10.1
         version: 0.10.1
@@ -138,9 +141,6 @@ importers:
       lint-staged:
         specifier: ^16.2.7
         version: 16.2.7
-      prettier-plugin-tailwindcss:
-        specifier: ^0.7.2
-        version: 0.7.2(prettier@3.7.4)
       simple-git-hooks:
         specifier: ^2.13.1
         version: 2.13.1
