@@ -2,9 +2,6 @@ import { fileURLToPath } from 'node:url';
 
 import { resolveModule } from 'local-pkg';
 
-import type { StylisticCustomizeOptions } from '@stylistic/eslint-plugin';
-import type { BuiltInParserName } from 'prettier';
-
 import {
   GLOB_CSS,
   GLOB_GRAPHQL,
@@ -21,6 +18,9 @@ import {
 import { interopDefault, parserPlain } from '../utils';
 
 import { StylisticConfigDefaults } from './stylistic';
+
+import type { StylisticCustomizeOptions } from '@stylistic/eslint-plugin';
+import type { BuiltInParserName } from 'prettier';
 
 import type {
   DefaultPrettierConfig,
@@ -50,7 +50,6 @@ function mergePrettierOptions(
       parser: config.parser,
       plugins: config.plugins,
       bracketSameLine: config.bracketSameLine,
-      printWidth: config.printWidth,
       singleAttributePerLine: config.singleAttributePerLine,
       tabWidth: config.tabWidth,
       xmlQuoteAttributes: config.xmlQuoteAttributes,
@@ -76,7 +75,6 @@ export async function formatters(
     singleQuote: quotes === 'single',
     tabWidth: typeof indent === 'number' ? indent : 2,
     useTabs: indent === 'tab',
-    printWidth: 80,
     quoteProps: 'consistent',
     jsxSingleQuote: false,
     trailingComma: 'all',
@@ -90,12 +88,13 @@ export async function formatters(
     vueIndentScriptAndStyle: true,
     endOfLine: 'lf',
     singleAttributePerLine: true,
-    objectWrap: 'preserve',
-    experimentalTernaries: false,
-    experimentalOperatorPosition: 'start',
   };
 
   const pluginFormat = await interopDefault(import('eslint-plugin-format'));
+
+  const tailwindPluginPath = resolveModule('prettier-plugin-tailwindcss', {
+    paths: [fileURLToPath(import.meta.url)],
+  });
 
   const configs: TypedFlatConfigItem[] = [
     {
@@ -110,7 +109,14 @@ export async function formatters(
     files: [GLOB_SRC, GLOB_VUE],
     name: 'svifty7/formatter/prettier',
     rules: {
-      'format/prettier': ['error', prettierOptions],
+      'format/prettier': [
+        'error',
+        tailwindPluginPath
+          ? mergePrettierOptions(prettierOptions, {
+              plugins: [tailwindPluginPath],
+            })
+          : prettierOptions,
+      ],
     },
   });
 
@@ -175,6 +181,7 @@ export async function formatters(
         'error',
         mergePrettierOptions(prettierOptions, {
           parser: 'html',
+          plugins: tailwindPluginPath ? [tailwindPluginPath] : undefined,
         }),
       ],
     },

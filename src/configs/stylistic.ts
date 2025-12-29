@@ -1,7 +1,7 @@
-import type { StylisticCustomizeOptions } from '@stylistic/eslint-plugin';
-
 import { pluginAntfu } from '../plugins';
 import { interopDefault } from '../utils';
+
+import type { StylisticCustomizeOptions } from '@stylistic/eslint-plugin';
 
 import type { TypedFlatConfigItem } from '../types';
 
@@ -16,6 +16,8 @@ export const StylisticConfigDefaults: Required<StylisticCustomizeOptions> = {
   quoteProps: 'consistent-as-needed',
   commaDangle: 'always-multiline',
   pluginName: 'style',
+  severity: 'error',
+  experimental: false,
 };
 export async function stylistic(
   options: Omit<StylisticCustomizeOptions, 'pluginName'> = {},

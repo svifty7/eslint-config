@@ -85,20 +85,20 @@ export function isInEditorEnv(): boolean {
   }
 
   return !!(
-    false
-    || process.env.VSCODE_PID
-    || process.env.VSCODE_CWD
-    || process.env.JETBRAINS_IDE
-    || process.env.VIM
-    || process.env.NVIM
+    false ||
+    process.env.VSCODE_PID ||
+    process.env.VSCODE_CWD ||
+    process.env.JETBRAINS_IDE ||
+    process.env.VIM ||
+    process.env.NVIM
   );
 }
 
 export function isInGitHooksOrLintStaged(): boolean {
   return !!(
-    false
-    || process.env.GIT_PARAMS
-    || process.env.VSCODE_GIT_COMMAND
-    || process.env.npm_lifecycle_script?.startsWith('lint-staged')
+    false ||
+    process.env.GIT_PARAMS ||
+    process.env.VSCODE_GIT_COMMAND ||
+    process.env.npm_lifecycle_script?.startsWith('lint-staged')
   );
 }

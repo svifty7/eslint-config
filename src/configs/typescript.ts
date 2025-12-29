@@ -12,11 +12,11 @@ import type {
 } from '../types';
 
 export async function typescript(
-  options: OptionsFiles
-    & OptionsComponentExts
-    & OptionsTypeScriptWithTypes
-    & OptionsTypeScriptParserOptions
-    & OptionsProjectType = {},
+  options: OptionsFiles &
+    OptionsComponentExts &
+    OptionsTypeScriptWithTypes &
+    OptionsTypeScriptParserOptions &
+    OptionsProjectType = {},
 ): Promise<TypedFlatConfigItem[]> {
   const {
     componentExts = [],

@@ -3,6 +3,7 @@ import type { ParserOptions } from '@typescript-eslint/parser';
 import type { Linter } from 'eslint';
 import type { FlatGitignoreOptions } from 'eslint-config-flat-gitignore';
 import type { Config as VendorPrettierConfig } from 'prettier';
+import type { PluginOptions as TailwindPluginOptions } from 'prettier-plugin-tailwindcss';
 
 import type { ConfigNames, RuleOptions } from './typegen';
 
@@ -55,10 +56,6 @@ export type DefaultPrettierConfig = Pick<
   | 'vueIndentScriptAndStyle'
   | 'endOfLine'
   | 'singleAttributePerLine'
-  | 'objectWrap'
-  | 'experimentalTernaries'
-  | 'experimentalOperatorPosition'
-  | 'printWidth'
 >;
 
 export interface XmlPrettierConfig {
@@ -84,7 +81,9 @@ export interface XmlPrettierConfig {
   xmlWhitespaceSensitivity?: 'ignore' | 'strict' | 'preserve';
 }
 
-export type PrettierConfig = DefaultPrettierConfig & XmlPrettierConfig;
+export type PrettierConfig = DefaultPrettierConfig &
+  XmlPrettierConfig &
+  TailwindPluginOptions;
 
 export interface OptionsComponentExts {
   /**
@@ -168,8 +167,7 @@ export interface OptionsIsInEditor {
 }
 
 export interface OptionsConfig
-  extends OptionsComponentExts,
-    OptionsProjectType {
+  extends OptionsComponentExts, OptionsProjectType {
   /**
    * Enable gitignore support.
    *
@@ -289,4 +287,6 @@ export interface OptionsConfig
    * @default true
    */
   autoRenamePlugins?: boolean;
+
+  prettier?: false | PrettierConfig;
 }

@@ -1,8 +1,6 @@
 import { FlatConfigComposer } from 'eslint-flat-config-utils';
 import { isPackageExists } from 'local-pkg';
 
-import type { Linter } from 'eslint';
-
 import {
   command,
   comments,
@@ -30,6 +28,8 @@ import {
   yaml,
 } from './configs';
 import { interopDefault, isInEditorEnv } from './utils';
+
+import type { Linter } from 'eslint';
 
 import type {
   Awaitable,

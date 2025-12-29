@@ -17,7 +17,16 @@ export function perfectionist(): TypedFlatConfigItem[] {
       rules: {
         'perfectionist/sort-exports': [
           'error',
-          { order: 'asc', type: 'natural' },
+          {
+            order: 'asc',
+            type: 'natural',
+            newlinesBetween: 1,
+            groups: [
+              'type-export',
+              { group: 'multiline-export', newlinesInside: 1 },
+              'singleline-export',
+            ],
+          },
         ],
         'perfectionist/sort-imports': [
           'error',
@@ -25,21 +34,29 @@ export function perfectionist(): TypedFlatConfigItem[] {
             groups: [
               'builtin',
               'external',
-              'type',
               'internal',
+              'tsconfig-path',
+              'subpath',
               'parent',
               'sibling',
               'index',
-              'side-effect',
               'unknown',
-              ['parent-type', 'sibling-type', 'index-type', 'internal-type'],
-              'object',
+              'type-builtin',
+              'type-external',
+              ['type-internal', 'type-tsconfig-path', 'type-subpath'],
+              ['type-parent', 'type-sibling', 'type-index'],
+              'side-effect',
+              'side-effect-style',
+              'style',
             ],
             internalPattern: ['^~/.+', '^@/.+'],
-            newlinesBetween: 'always',
+            newlinesBetween: 1,
             order: 'asc',
             type: 'natural',
-            tsconfigRootDir: process.cwd(),
+            tsconfig: {
+              rootDir: process.cwd(),
+            },
+            fallbackSort: { type: 'unsorted' },
           },
         ],
         'perfectionist/sort-named-exports': [
