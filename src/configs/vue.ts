@@ -151,13 +151,6 @@ export async function vue(
         'vue/require-typed-object-prop': 'error',
         'vue/require-typed-ref': 'error',
         'vue/v-for-delimiter-style': ['error', 'in'],
-        'vue/component-name-in-template-casing': [
-          'error',
-          'kebab-case',
-          {
-            registeredComponentsOnly: false,
-          },
-        ],
         'vue/array-bracket-spacing': ['error', 'never'],
         'vue/arrow-spacing': ['error', { after: true, before: true }],
         'vue/block-spacing': ['error', 'always'],
