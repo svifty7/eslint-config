@@ -64,6 +64,7 @@ function mergePrettierOptions(
 
 export async function formatters(
   stylistic: Omit<StylisticCustomizeOptions, 'pluginName'> = {},
+  prettier: Partial<PrettierConfig> = {},
 ): Promise<TypedFlatConfigItem[]> {
   const { indent, quotes, semi } = {
     ...StylisticConfigDefaults,
@@ -88,6 +89,7 @@ export async function formatters(
     vueIndentScriptAndStyle: true,
     endOfLine: 'lf',
     singleAttributePerLine: true,
+    ...prettier,
   };
 
   const pluginFormat = await interopDefault(import('eslint-plugin-format'));

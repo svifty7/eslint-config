@@ -88,6 +88,7 @@ export function configure(
     typescript: isPackageExists('typescript') ? {} : undefined,
     unicorn: true,
     vue: VuePackages.some((i) => isPackageExists(i)) ? {} : undefined,
+    prettier: true,
   };
 
   const {
@@ -247,7 +248,11 @@ export function configure(
     );
   }
 
-  configs.push(formatters(stylisticOptions));
+  if (typeof options.prettier === 'object') {
+    configs.push(formatters(options.stylistic, options.prettier));
+  } else if (options.prettier ?? true) {
+    configs.push(formatters(options.stylistic));
+  }
 
   configs.push(disables());
 

@@ -288,5 +288,5 @@ export interface OptionsConfig
    */
   autoRenamePlugins?: boolean;
 
-  prettier?: false | PrettierConfig;
+  prettier?: boolean | PrettierConfig;
 }
