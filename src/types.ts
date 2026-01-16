@@ -144,7 +144,12 @@ export interface OptionsStylistic {
   stylistic?: StylisticConfig;
 }
 
-export type StylisticConfig = Omit<StylisticCustomizeOptions, 'pluginName'>;
+export type StylisticConfig = Omit<
+  StylisticCustomizeOptions,
+  'pluginName' | 'indent'
+> & {
+  indent?: number | 'tab';
+};
 
 export interface OptionsProjectType {
   /**

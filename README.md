@@ -58,6 +58,7 @@ If you still use some configs from the legacy eslintrc format, you can use the [
 ```js
 // eslint.config.js
 import { FlatCompat } from '@eslint/eslintrc';
+
 import configure from '@svifty7/eslint-config';
 
 const compat = new FlatCompat();
