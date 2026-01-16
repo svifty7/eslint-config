@@ -230,7 +230,7 @@ export function javascript(
           },
         ],
         'prefer-exponentiation-operator': 'error',
-        'prefer-promise-reject-errors': 'error',
+        'prefer-promise-reject-errors': 'off',
         'prefer-regex-literals': ['error', { disallowRedundantWrapping: true }],
         'prefer-rest-params': 'error',
         'prefer-spread': 'error',
@@ -245,6 +245,7 @@ export function javascript(
           {
             args: 'after-used',
             argsIgnorePattern: '^_',
+            caughtErrors: 'none',
             ignoreRestSiblings: true,
             vars: 'all',
             varsIgnorePattern: '^_',
