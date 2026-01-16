@@ -193,7 +193,13 @@ export async function vue(
         'vue/valid-v-slot': 'off',
 
         'vue/require-explicit-emits': 'error',
-        'vue/custom-event-name-casing': ['error', 'kebab-case'],
+        'vue/custom-event-name-casing': [
+          'error',
+          'kebab-case',
+          {
+            ignores: ['/^[a-z]+(?:-[a-z]+)*:[a-z]+(?:-[a-z]+)*$/u'],
+          },
+        ],
 
         'vue-a11y/anchor-has-content': 'off',
         'vue-a11y/click-events-have-key-events': 'off',
