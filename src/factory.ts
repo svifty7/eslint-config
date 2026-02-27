@@ -151,11 +151,13 @@ export function configure(
 
   // Base configs
   configs.push(
-    ignores(options.ignores),
+    ignores(options.ignores, !enableTypeScript),
     javascript({ isInEditor }),
     comments(),
     node(),
-    jsdoc(),
+    jsdoc({
+      stylistic: stylisticOptions,
+    }),
     imports(),
     command(),
     perfectionist(),
@@ -221,7 +223,11 @@ export function configure(
   }
 
   if (enableCatalogs) {
-    configs.push(pnpm());
+    configs.push(
+      pnpm({
+        ...resolveSubOptions(options, 'pnpm'),
+      }),
+    );
   }
 
   if (options.yaml ?? true) {

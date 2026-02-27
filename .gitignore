@@ -101,3 +101,4 @@ dist
 # Generated files
 src/typegen.d.ts
 .eslint-config-inspector
+antfu

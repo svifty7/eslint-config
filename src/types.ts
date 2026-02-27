@@ -1,9 +1,9 @@
 import type { StylisticCustomizeOptions } from '@stylistic/eslint-plugin';
 import type { ParserOptions } from '@typescript-eslint/parser';
-import type { Linter } from 'eslint';
 import type { FlatGitignoreOptions } from 'eslint-config-flat-gitignore';
 import type { Config as VendorPrettierConfig } from 'prettier';
 import type { PluginOptions as TailwindPluginOptions } from 'prettier-plugin-tailwindcss';
+import type { ConfigWithExtends } from 'typescript-eslint';
 
 import type { ConfigNames, RuleOptions } from './typegen';
 
@@ -13,10 +13,7 @@ export interface Rules extends RuleOptions {}
 
 export type { ConfigNames };
 
-export type TypedFlatConfigItem = Omit<
-  Linter.Config<Linter.RulesRecord & Rules>,
-  'plugins'
-> & {
+export type TypedFlatConfigItem = Omit<ConfigWithExtends, 'plugins'> & {
   // Relax plugins type limitation, as most of the plugins did not have correct type info yet.
   /**
    * An object containing a name-value mapping of plugin names to plugin objects. When `files` is specified, these plugins are only available to the matching files.
@@ -35,7 +32,8 @@ export interface OptionsFiles {
 
 export type OptionsTypescript =
   | OptionsTypeScriptWithTypes
-  | OptionsTypeScriptParserOptions;
+  | OptionsTypeScriptParserOptions
+  | OptionsTypeScriptErasableOnly;
 
 export type DefaultPrettierConfig = Pick<
   VendorPrettierConfig,
@@ -149,6 +147,11 @@ export type StylisticConfig = Omit<
   'pluginName' | 'indent'
 > & {
   indent?: number | 'tab';
+  lessOpinionated?: boolean;
+  /**
+   * Enable jsx-a11y rules.
+   */
+  jsxA11y?: boolean;
 };
 
 export interface OptionsProjectType {
@@ -165,6 +168,18 @@ export interface OptionsRegExp {
    * Override rulelevels
    */
   level?: 'error' | 'warn';
+}
+
+export interface OptionsPnpm {
+  catalogs?: boolean;
+  isInEditor?: boolean;
+  json?: boolean;
+  sort?: boolean;
+  yaml?: boolean;
+}
+
+export interface OptionsTypeScriptErasableOnly {
+  erasableOnly?: boolean;
 }
 
 export interface OptionsIsInEditor {
@@ -271,14 +286,9 @@ export interface OptionsConfig
   /**
    * Enable pnpm (workspace/catalogs) support.
    *
-   * Currently it's disabled by default, as it's still experimental.
-   * In the future it will be smartly enabled based on the project usage.
-   *
-   * @see https://github.com/antfu/pnpm-workspace-utils
-   * @experimental
    * @default true
    */
-  pnpm?: boolean;
+  pnpm?: boolean | OptionsPnpm;
 
   /**
    * Control to disable some rules in editors.

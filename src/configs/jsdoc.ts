@@ -1,14 +1,23 @@
+import { GLOB_SRC } from '../globs';
 import { interopDefault } from '../utils';
 
-import type { TypedFlatConfigItem } from '../types';
+import type { OptionsStylistic, TypedFlatConfigItem } from '../types';
 
-export async function jsdoc(): Promise<TypedFlatConfigItem[]> {
+export async function jsdoc(
+  options: OptionsStylistic = {},
+): Promise<TypedFlatConfigItem[]> {
+  const { stylistic = true } = options;
+
   return [
     {
-      name: 'svifty7/jsdoc/rules',
+      name: 'svifty7/jsdoc/setup',
       plugins: {
         jsdoc: await interopDefault(import('eslint-plugin-jsdoc')),
       },
+    },
+    {
+      files: [GLOB_SRC],
+      name: 'svifty7/jsdoc/rules',
       rules: {
         'jsdoc/check-access': 'warn',
         'jsdoc/check-param-names': 'warn',
@@ -26,8 +35,12 @@ export async function jsdoc(): Promise<TypedFlatConfigItem[]> {
         'jsdoc/require-returns-description': 'warn',
         'jsdoc/require-yields-check': 'warn',
 
-        'jsdoc/check-alignment': 'warn',
-        'jsdoc/multiline-blocks': 'warn',
+        ...(stylistic
+          ? {
+              'jsdoc/check-alignment': 'warn',
+              'jsdoc/multiline-blocks': 'warn',
+            }
+          : {}),
       },
     },
   ];

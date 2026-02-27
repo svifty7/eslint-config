@@ -5,7 +5,7 @@ import {
   GLOB_MARKDOWN_CODE,
   GLOB_MARKDOWN_IN_MARKDOWN,
 } from '../globs';
-import { interopDefault, parserPlain } from '../utils';
+import { interopDefault } from '../utils';
 
 import type {
   OptionsComponentExts,
@@ -18,13 +18,13 @@ export async function markdown(
 ): Promise<TypedFlatConfigItem[]> {
   const { componentExts = [], files = [GLOB_MARKDOWN] } = options;
 
-  const markdownPlugin = await interopDefault(import('@eslint/markdown'));
+  const pluginMarkdown = await interopDefault(import('@eslint/markdown'));
 
   return [
     {
       name: 'svifty7/markdown/setup',
       plugins: {
-        markdown: markdownPlugin,
+        markdown: pluginMarkdown,
       },
     },
     {
@@ -32,16 +32,37 @@ export async function markdown(
       ignores: [GLOB_MARKDOWN_IN_MARKDOWN],
       name: 'svifty7/markdown/processor',
       processor: mergeProcessors([
-        markdownPlugin.processors!.markdown,
+        pluginMarkdown.processors!.markdown,
         processorPassThrough,
       ]),
     },
     {
       files,
-      languageOptions: {
-        parser: parserPlain,
-      },
+      language: 'markdown/gfm',
       name: 'svifty7/markdown/parser',
+    },
+    {
+      files,
+      name: 'svifty7/markdown/rules',
+      rules: {
+        ...pluginMarkdown.configs.recommended.at(0)?.rules,
+        'markdown/no-missing-label-refs': 'off',
+      },
+    },
+    {
+      files,
+      name: 'svifty7/markdown/disables/markdown',
+      rules: {
+        'command/command': 'off',
+        'no-irregular-whitespace': 'off',
+        'perfectionist/sort-exports': 'off',
+        'perfectionist/sort-imports': 'off',
+        'regexp/no-legacy-features': 'off',
+        'regexp/no-missing-g-flag': 'off',
+        'regexp/no-useless-dollar-replacements': 'off',
+        'regexp/no-useless-flag': 'off',
+        'style/indent': 'off',
+      },
     },
     {
       files: [
@@ -55,7 +76,7 @@ export async function markdown(
           },
         },
       },
-      name: 'svifty7/markdown/disables',
+      name: 'svifty7/markdown/disables/code',
       rules: {
         'antfu/no-top-level-await': 'off',
 
@@ -69,12 +90,14 @@ export async function markdown(
         'no-undef': 'off',
         'no-unused-expressions': 'off',
         'no-unused-labels': 'off',
-
         'no-unused-vars': 'off',
-        'node/prefer-global/process': 'off',
-        'style/comma-dangle': 'off',
 
+        'node/prefer-global/process': 'off',
+
+        'style/comma-dangle': 'off',
         'style/eol-last': 'off',
+        'style/padding-line-between-statements': 'off',
+
         'ts/consistent-type-imports': 'off',
         'ts/explicit-function-return-type': 'off',
         'ts/no-namespace': 'off',

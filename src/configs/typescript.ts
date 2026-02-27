@@ -2,10 +2,13 @@ import { GLOB_MARKDOWN, GLOB_TS, GLOB_TSX } from '../globs';
 import { pluginAntfu } from '../plugins';
 import { interopDefault, renameRules } from '../utils';
 
+import type { Linter } from 'eslint';
+
 import type {
   OptionsComponentExts,
   OptionsFiles,
   OptionsProjectType,
+  OptionsTypeScriptErasableOnly,
   OptionsTypeScriptParserOptions,
   OptionsTypeScriptWithTypes,
   TypedFlatConfigItem,
@@ -16,6 +19,7 @@ export async function typescript(
     OptionsComponentExts &
     OptionsTypeScriptWithTypes &
     OptionsTypeScriptParserOptions &
+    OptionsTypeScriptErasableOnly &
     OptionsProjectType = {},
 ): Promise<TypedFlatConfigItem[]> {
   const {
@@ -23,6 +27,7 @@ export async function typescript(
     overridesTypeAware = {},
     parserOptions = {},
     type = 'app',
+    erasableOnly = false,
   } = options;
 
   const filePatterns = options.files ?? [
@@ -236,6 +241,24 @@ export async function typescript(
               ...typeAwareRules,
               ...overridesTypeAware,
             },
+          },
+        ]
+      : []),
+    ...(erasableOnly
+      ? [
+          {
+            name: 'svifty7/typescript/erasable-syntax-only',
+            plugins: {
+              'erasable-syntax-only': await interopDefault(
+                import('eslint-plugin-erasable-syntax-only'),
+              ),
+            },
+            rules: {
+              'erasable-syntax-only/enums': 'error',
+              'erasable-syntax-only/import-aliases': 'error',
+              'erasable-syntax-only/namespaces': 'error',
+              'erasable-syntax-only/parameter-properties': 'error',
+            } as Record<string, Linter.RuleEntry>,
           },
         ]
       : []),

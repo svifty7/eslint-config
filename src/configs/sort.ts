@@ -80,6 +80,14 @@ export function sortPackageJson(): TypedFlatConfigItem[] {
             pathPattern: '^(?:resolutions|overrides|pnpm.overrides)$',
           },
           {
+            order: { type: 'asc' },
+            pathPattern: '^workspaces\\.catalog$',
+          },
+          {
+            order: { type: 'asc' },
+            pathPattern: '^workspaces\\.catalogs\\.[^.]+$',
+          },
+          {
             order: ['types', 'import', 'require', 'default'],
             pathPattern: '^exports.*$',
           },
@@ -114,7 +122,7 @@ export function sortPackageJson(): TypedFlatConfigItem[] {
 export function sortTsconfig(): TypedFlatConfigItem[] {
   return [
     {
-      files: ['**/tsconfig.json', '**/tsconfig.*.json'],
+      files: ['**/[jt]sconfig.json', '**/[jt]sconfig.*.json'],
       name: 'svifty7/sort/tsconfig-json',
       rules: {
         'jsonc/sort-keys': [
