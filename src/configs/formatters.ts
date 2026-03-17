@@ -26,8 +26,8 @@ import {
 import { ensurePackages, interopDefault, parserPlain } from '../utils';
 import { StylisticConfigDefaults } from './stylistic';
 
-type PrettierOptions = Omit<RequiredOptions, 'plugins' | 'parser'> &
-  PrettierConfig & {
+type PrettierOptions = Omit<RequiredOptions, 'plugins' | 'parser'>
+  & PrettierConfig & {
     parser: BuiltInParserName | 'xml';
     plugins?: Array<string>;
     [k: string]: unknown | undefined;
@@ -101,6 +101,8 @@ export async function formatters(
     endOfLine: 'lf',
     singleAttributePerLine: true,
     parser: 'typescript',
+    experimentalTernaries: false,
+    experimentalOperatorPosition: 'start',
     ...prettier,
   };
 

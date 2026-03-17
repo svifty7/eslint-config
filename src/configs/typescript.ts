@@ -11,10 +11,10 @@ import { pluginAntfu } from '../plugins';
 import { ensurePackages, interopDefault, renameRules } from '../utils';
 
 export async function typescript(
-  options: OptionsFiles &
-    OptionsTypescript &
-    OptionsComponentExts &
-    OptionsProjectType = {},
+  options: OptionsFiles
+    & OptionsTypescript
+    & OptionsComponentExts
+    & OptionsProjectType = {},
 ): Promise<TypedFlatConfigItem[]> {
   const { componentExts = [], type = 'app', tsconfigPath } = options;
 

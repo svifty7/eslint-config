@@ -90,8 +90,8 @@ export function configure(
     vue: enableVue = VuePackages.some((i) => isPackageExists(i))
       ? true
       : undefined,
-    typescript: enableTypeScript = isPackageExists('typescript') ||
-    isPackageExists('@typescript/native-preview')
+    typescript: enableTypeScript = isPackageExists('typescript')
+    || isPackageExists('@typescript/native-preview')
       ? true
       : undefined,
   } = options;

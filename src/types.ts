@@ -6,8 +6,8 @@ import type { ConfigNames, RuleOptions } from './typegen';
 
 export type Awaitable<T> = T | Promise<T>;
 
-export type Rules = Record<string, Linter.RuleEntry<any> | undefined> &
-  RuleOptions;
+export type Rules = Record<string, Linter.RuleEntry<any> | undefined>
+  & RuleOptions;
 
 export type { ConfigNames, RuleOptions };
 
