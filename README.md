@@ -4,39 +4,42 @@ Thanks to Anthony Fu for creating the original plugin [@antfu/eslint-config](htt
 
 ![npm](https://img.shields.io/npm/v/%40svifty7%2Feslint-config?style=flat&logo=npm&logoColor=%23CB3837)
 
-A thin wrapper around [@antfu/eslint-config](https://github.com/antfu/eslint-config), tailored to my personal preferences and coding style. Supports Vue 3, TypeScript, JSON, YAML, TOML, Markdown, and other formats out of the box — everything that `@antfu/eslint-config` supports.
+An ESLint configuration based on [@antfu/eslint-config](https://github.com/antfu/eslint-config), tailored to my personal preferences and coding style. This configuration is integrated with Prettier. It supports Vue 3, TypeScript, JSON, YAML, TOML, Markdown, and other formats out of the box.
 
 > [!WARNING]
 >
-> This config is opinionated and tailored to my personal preferences. It may not align with your expectations.
-> If you use this config, carefully review it when installing or updating. As with the original plugin, you can customize it or fork it to tailor it to your needs.
+> Unlike the original package, I’ve removed functionality related to the automatic installation of packages upon auto-detection. Instead, dependencies are included by default (except for `eslint` and `vue`, which need to be installed separately). Support for React, Svelte, Astro, Solid, and Slidev has been removed, as they are not used in my projects.
+>
+> Instead of relying **solely on ESLint**, I’ve **added Prettier** because I prefer the code output it produces, and conflicting rules have been disabled as a result. Some rules have also been disabled, modified, or added, such as enforcing semicolons.
+>
+> These changes suit my preferences but may not align with your expectations. If you use this config, carefully review it when installing or updating the plugin. As with the original plugin, you can customize it or fork it to tailor it to your needs.
 
-## What's Different from @antfu/eslint-config
+## Key Features
 
-This config is a thin wrapper over `@antfu/eslint-config` that applies a set of opinionated overrides:
-
-| Config | What's overridden |
-| --- | --- |
-| `javascript` | Enables `camelcase`, `curly` (all), `default-param-last`, `guard-for-in`, `no-param-reassign`, `require-await`, `class-methods-use-this`; disables several `no-*` rules |
-| `typescript` | Stricter `ts/ban-ts-comment`, adds `ts/no-dynamic-delete`, `ts/no-extraneous-class`, `ts/no-shadow`, `ts/explicit-member-accessibility` |
-| `stylistic` | `style/indent` (2 spaces, 1tbs), `style/padding-line-between-statements`, `style/brace-style`, `antfu/top-level-function`, `antfu/consistent-chaining`, and more |
-| `perfectionist` | Custom `sort-imports` groups with tsconfig path resolution; `sort-exports` with `newlinesBetween` |
-| `imports` | `import/consistent-type-specifier-style` (prefer-top-level), disables `import/no-named-as-default-member` |
-| `node` | Enforces `node/prefer-global/buffer` and `node/prefer-global/process` (always) |
-| `unicorn` | A curated set of unicorn rules (`error-message`, `escape-case`, `prefer-node-protocol`, `no-nested-ternary`, `template-indent`, and more) |
-| `vue` | Strict Vue 3 rules: `block-order`, `component-api-style` (script-setup only), `block-lang` (ts), `define-props-declaration` (type-based), `max-attributes-per-line: 1`, and many more; includes essential `vue-a11y` accessibility rules |
-
-> Support for React, Svelte, Astro, Solid, Slidev, and Angular is not removed — it's inherited from `@antfu/eslint-config` and can be enabled following antfu's documentation.
+- Uses Prettier for code formatting
+- Out-of-the-box support for Vue 3
+- Works with TypeScript, JSX, JSON, YAML, TOML, Markdown, and more
+- Built on ESLint Flat Config for flexible composition
+- Auto-fixing for most rules
+- Respects .gitignore by default
+- Requires ESLint v9.26.0+. Earlier versions may work with modifications, but they are untested.
+- Styling rules:
+  - Enforced semicolons, single quotes, trailing commas
+  - Uses ESLint Stylistic
+- Simple setup: one line for basic configuration
+- Highly customizable for specific needs
 
 ## Usage
 
 ### Install
 
+Install eslint with this config:
+
 ```bash
 pnpm add -D eslint @svifty7/eslint-config
 ```
 
-And create `eslint.config.js` (or `eslint.config.ts`) in your project root:
+And create `eslint.config.js` in your project root:
 
 ```js
 // eslint.config.js
@@ -145,7 +148,16 @@ Add the following settings to your `.vscode/settings.json`:
 
 ## Customization
 
-Since this is a thin wrapper around `@antfu/eslint-config`, the `configure` function accepts **all the same options** as `antfu()`. Refer to [@antfu/eslint-config documentation](https://github.com/antfu/eslint-config) for the full options reference.
+Normally you only need to import the `configure` preset:
+
+```js
+// eslint.config.js
+import configure from '@svifty7/eslint-config';
+
+export default configure();
+```
+
+And that's it! Or you can configure each integration individually, for example:
 
 ```js
 // eslint.config.js
@@ -193,10 +205,11 @@ import configure from '@svifty7/eslint-config';
 
 export default configure(
   {
-    // Options for @antfu/eslint-config (and svifty7 overrides)
+    // Configures for svifty7's config
   },
 
-  // From the second argument onwards, these are ESLint Flat Configs
+  // From the second arguments they are ESLint Flat Configs
+  // you can have multiple configs
   {
     files: ['**/*.ts'],
     rules: {},
@@ -207,34 +220,62 @@ export default configure(
 );
 ```
 
-### Config Composer
+Going more advanced, you can also import fine-grained configs and compose them as you wish:
 
-The factory function `configure()` returns a [`FlatConfigComposer` object from `eslint-flat-config-utils`](https://github.com/antfu/eslint-flat-config-utils#composer) where you can chain the methods to compose the config even more flexibly.
+<details>
+<summary>Advanced Example</summary>
+
+Anthony Fu [don't recommend](https://github.com/antfu/eslint-config/blob/main/README.md#customization) using this style unless you know exactly what you're doing, as shared options between configs may require extra care to ensure consistency.
 
 ```js
 // eslint.config.js
-import configure from '@svifty7/eslint-config';
+import {
+  combine,
+  comments,
+  ignores,
+  imports,
+  javascript,
+  jsdoc,
+  jsonc,
+  markdown,
+  node,
+  sortPackageJson,
+  sortTsconfig,
+  stylistic,
+  toml,
+  typescript,
+  unicorn,
+  vue,
+  yaml,
+} from '@svifty7/eslint-config';
 
-export default configure()
-  // some configs before the main config
-  .prepend()
-  // overrides any named configs
-  .override('svifty7/import/rules', {
-    rules: {
-      'import/consistent-type-specifier-style': ['error', 'prefer-inline'],
-    },
-  })
-  // rename plugin prefixes
-  .renamePlugins({
-    'old-prefix': 'new-prefix',
-    // ...
-  });
-// ...
+export default combine(
+  ignores(),
+  javascript(),
+  comments(),
+  node(),
+  jsdoc(),
+  imports(),
+  unicorn(),
+  typescript(/* Options */),
+  stylistic(),
+  vue(),
+  jsonc(),
+  yaml(),
+  toml(),
+  markdown(),
+);
 ```
+
+</details>
+
+Check out the [configs](https://github.com/svifty7/eslint-config/blob/main/src/configs) and [factory](https://github.com/svifty7/eslint-config/blob/main/src/factory.ts) or [original package](https://github.com/antfu/eslint-config) for more details.
+
+> Thanks to [antfu/eslint-config](https://github.com/antfu/eslint-config) and [sxzz/eslint-config](https://github.com/sxzz/eslint-config) for the inspiration and reference.
 
 ### Plugins Renaming
 
-Since flat config requires us to explicitly provide plugin prefixes (instead of relying on npm package naming conventions), this config (via `@antfu/eslint-config`) renames some plugins:
+Since flat config requires us to explicitly provide plugin prefixes (instead of relying on npm package naming conventions).
 
 | New Prefix | Original Prefix        | Source Plugin                                                                              |
 | ---------- | ---------------------- | ------------------------------------------------------------------------------------------ |
@@ -254,13 +295,35 @@ When you want to override rules, or disable them inline, you need to update to t
 type foo = { bar: 2 }
 ```
 
-### Vue Accessibility
+> [!NOTE]
+>
+> About plugin renaming - it is actually rather a dangrous move that might leading to potential naming collisions, pointed out [here](https://github.com/eslint/eslint/discussions/17766) and [here](https://github.com/prettier/eslint-config-prettier#eslintconfigjs-flat-config-plugin-caveat).
+>
+> As this config also very personal and opinionated, I share Anthony's point of view and position this config as the only "top-level" config per project.
 
-`eslint-plugin-vuejs-accessibility` rules are enabled by default when Vue is detected in your project. A subset of essential rules is enabled, while overly strict rules (e.g. `click-events-have-key-events`, `anchor-has-content`) are disabled.
+This preset will automatically rename the plugins also for your custom configs. You can use the original prefix to override the rules directly.
+
+<details>
+<summary>Change back to original prefix</summary>
+
+If you really want to use the original prefix, you can revert the plugin renaming by:
+
+```ts
+import configure from '@svifty7/eslint-config';
+
+export default configure().renamePlugins({
+  ts: '@typescript-eslint',
+  yaml: 'yml',
+  node: 'n',
+  // ...
+});
+```
+
+</details>
 
 ### Rules Overrides
 
-Certain rules are only enabled in specific files, for example, `ts/*` rules would only be enabled in `.ts` files and `vue/*` rules would only be enabled in `.vue` files. If you want to override the rules, you need to specify the file extension:
+Certain rules would only be enabled in specific files, for example, `ts/*` rules would only be enabled in `.ts` files and `vue/*` rules would only be enabled in `.vue` files. If you want to override the rules, you need to specify the file extension:
 
 ```js
 // eslint.config.js
@@ -284,22 +347,65 @@ export default configure(
 );
 ```
 
-### Type Aware Rules
+### Config Composer
 
-You can optionally enable the [type aware rules](https://typescript-eslint.io/linting/typed-linting/) by passing the options object to the `typescript` config:
+The factory function `configure()` returns a [`FlatConfigComposer` object from `eslint-flat-config-utils`](https://github.com/antfu/eslint-flat-config-utils#composer) where you can chain the methods to compose the config even more flexibly.
+
+```js
+// eslint.config.js
+import configure from '@svifty7/eslint-config';
+
+export default configure()
+  // some configs before the main config
+  .prepend()
+  // overrides any named configs
+  .override('svifty7/imports', {
+    rules: {
+      'import/order': ['error', { 'newlines-between': 'always' }],
+    },
+  })
+  // rename plugin prefixes
+  .renamePlugins({
+    'old-prefix': 'new-prefix',
+    // ...
+  });
+// ...
+```
+
+### Vue
+
+Vue support is detected automatically by checking if `vue` is installed in your project.
+
+#### Vue 2
+
+Vue 2 is not supported in this config.
+
+#### Vue Accessibility
+
+vue-accessibility is enabled by default when vue was detected in your project.
+
+#### Formatters
+
+Prettier formatter is enabled by default to format files that ESLint cannot handle yet (`.css`, `.html`, etc), but you can disable it for some format files. Powered by [`eslint-plugin-format`](https://github.com/antfu/eslint-plugin-format).
 
 ```js
 // eslint.config.js
 import configure from '@svifty7/eslint-config';
 
 export default configure({
-  typescript: {
-    tsconfigPath: 'tsconfig.json',
+  formatters: {
+    /**
+     * Format Markdown files
+     * @default true
+     */
+    markdown: false,
   },
 });
 ```
 
 ### Optional Rules
+
+This config also provides some optional plugins/rules for extended usage.
 
 #### `command`
 
@@ -334,6 +440,42 @@ function foo(msg: string): void {
 ```
 
 The command comments are usually one-off and will be removed along with the transformation.
+
+### Type Aware Rules
+
+You can optionally enable the [type aware rules](https://typescript-eslint.io/linting/typed-linting/) by passing the options object to the `typescript` config:
+
+```js
+// eslint.config.js
+import configure from '@svifty7/eslint-config';
+
+export default configure({
+  typescript: {
+    tsconfigPath: 'tsconfig.json',
+  },
+});
+```
+
+### Editor Specific Disables
+
+Auto-fixing for the following rules are disabled when ESLint is running in a code editor:
+
+- [`prefer-const`](https://eslint.org/docs/rules/prefer-const)
+- [`test/no-only-tests`](https://github.com/levibuzolic/eslint-plugin-no-only-tests)
+- [`unused-imports/no-unused-imports`](https://www.npmjs.com/package/eslint-plugin-unused-imports)
+
+They are made non-fixable using the `disableRulesFix` utility from `eslint-flat-config-utils` (see [documentation](https://github.com/antfu/eslint-flat-config-utils#composerdisablerulesfix)).
+
+This is to prevent unused imports from getting removed by the editor during refactoring to get a better developer experience. Those rules will be applied when you run ESLint in the terminal or [Lint Staged](#lint-staged). If you don't want this behavior, you can disable them:
+
+```js
+// eslint.config.js
+import configure from '@svifty7/eslint-config';
+
+export default configure({
+  isInEditor: false,
+});
+```
 
 ### Lint Staged
 

@@ -1,17 +1,87 @@
-import type { TypedFlatConfigItem } from '@antfu/eslint-config';
+import { GLOB_VUE } from '../globs';
+import { interopDefault } from '../utils';
 
-import { GLOB_VUE } from '@antfu/eslint-config';
+import type {
+  OptionsFiles,
+  OptionsHasTypeScript,
+  TypedFlatConfigItem,
+} from '../types';
 
-/**
- * Vue-specific overrides on top of @antfu/eslint-config.
- * Only rules that are unique to svifty7 or differ from antfu's defaults.
- */
-export function vue(): TypedFlatConfigItem[] {
+export async function vue(
+  options: OptionsHasTypeScript & OptionsFiles = {},
+): Promise<TypedFlatConfigItem[]> {
+  const { files = [GLOB_VUE] } = options;
+
+  const [pluginVue, parserVue, pluginVueA11y] = await Promise.all([
+    interopDefault(import('eslint-plugin-vue')),
+    interopDefault(import('vue-eslint-parser')),
+    interopDefault(import('eslint-plugin-vuejs-accessibility')),
+  ] as const);
+
   return [
     {
+      // This allows Vue plugin to work with auto imports
+      // https://github.com/vuejs/eslint-plugin-vue/pull/2422
+      languageOptions: {
+        globals: {
+          computed: 'readonly',
+          defineEmits: 'readonly',
+          defineExpose: 'readonly',
+          defineProps: 'readonly',
+          onMounted: 'readonly',
+          onUnmounted: 'readonly',
+          reactive: 'readonly',
+          ref: 'readonly',
+          shallowReactive: 'readonly',
+          shallowRef: 'readonly',
+          toRef: 'readonly',
+          toRefs: 'readonly',
+          watch: 'readonly',
+          watchEffect: 'readonly',
+        },
+      },
+      name: 'svifty7/vue/setup',
+      plugins: {
+        'vue': pluginVue,
+        'vue-a11y': pluginVueA11y,
+      },
+    },
+    {
+      files,
+      languageOptions: {
+        parser: parserVue,
+        parserOptions: {
+          ecmaFeatures: {
+            jsx: true,
+          },
+          extraFileExtensions: ['.vue'],
+          parser: options.typescript
+            ? ((await interopDefault(
+                import('@typescript-eslint/parser'),
+              )) as any)
+            : null,
+          sourceType: 'module',
+        },
+      },
       name: 'svifty7/vue/rules',
-      files: [GLOB_VUE],
+      processor: pluginVue.processors['.vue'],
       rules: {
+        ...(pluginVue.configs.base.rules as any),
+
+        ...(pluginVue.configs['flat/essential']
+          .map((c) => c.rules)
+          .reduce((acc, c) => ({ ...acc, ...c }), {}) as any),
+        ...(pluginVue.configs['flat/strongly-recommended']
+          .map((c) => c.rules)
+          .reduce((acc, c) => ({ ...acc, ...c }), {}) as any),
+        ...(pluginVue.configs['flat/recommended']
+          .map((c) => c.rules)
+          .reduce((acc, c) => ({ ...acc, ...c }), {}) as any),
+
+        'antfu/no-top-level-await': 'off',
+        'node/prefer-global/process': 'off',
+        'ts/explicit-function-return-type': 'off',
+
         'vue/padding-line-between-tags': [
           'error',
           [
@@ -91,25 +161,25 @@ export function vue(): TypedFlatConfigItem[] {
             singleline: 'always',
           },
         ],
-        'vue/brace-style': ['error', '1tbs', { allowSingleLine: true }],
-        'vue/html-indent': ['error', 2, {
-          attribute: 1,
-          baseIndent: 1,
-          closeBracket: 0,
-          alignAttributesVertically: false,
-          ignores: [],
-        }],
+        'vue/brace-style': ['error', 'stroustrup', { allowSingleLine: true }],
+        'vue/html-indent': ['error', 2],
         'vue/html-quotes': ['error', 'double'],
-        'vue/script-indent': ['error', 2, { baseIndent: 1, switchCase: 1 }],
         'vue/comma-dangle': ['error', 'always-multiline'],
         'vue/comma-spacing': ['error', { after: true, before: false }],
         'vue/comma-style': ['error', 'last'],
-        'vue/html-comment-content-spacing': ['error', 'always', { exceptions: ['-'] }],
+        'vue/html-comment-content-spacing': [
+          'error',
+          'always',
+          { exceptions: ['-'] },
+        ],
         'vue/key-spacing': ['error', { afterColon: true, beforeColon: false }],
         'vue/keyword-spacing': ['error', { after: true, before: true }],
         'vue/object-curly-newline': 'off',
         'vue/object-curly-spacing': ['error', 'always'],
-        'vue/object-property-newline': ['error', { allowMultiplePropertiesPerLine: true }],
+        'vue/object-property-newline': [
+          'error',
+          { allowMultiplePropertiesPerLine: true },
+        ],
         'vue/operator-linebreak': ['error', 'before'],
         'vue/padding-line-between-blocks': ['error', 'always'],
         'vue/quote-props': ['error', 'consistent-as-needed'],
@@ -130,21 +200,14 @@ export function vue(): TypedFlatConfigItem[] {
             ignores: ['/^[a-z]+(?:-[a-z]+)*:[a-z]+(?:-[a-z]+)*$/u'],
           },
         ],
-      },
-    },
-    {
-      name: 'svifty7/vue/disables/stylistic',
-      files: [GLOB_VUE],
-      rules: {
-        'style/indent': 'off',
-        'style/indent-binary-ops': 'off',
-      },
-    },
-    {
-      name: 'svifty7/vue-a11y/rules',
-      files: [GLOB_VUE],
-      rules: {
-        // Essential a11y rules enabled
+
+        'vue-a11y/anchor-has-content': 'off',
+        'vue-a11y/click-events-have-key-events': 'off',
+        'vue-a11y/mouse-events-have-key-events': 'off',
+        'vue-a11y/label-has-for': 'off',
+        'vue-a11y/no-autofocus': 'off',
+        'vue-a11y/form-control-has-label': 'off',
+        'vue-a11y/no-static-element-interactions': 'off',
         'vue-a11y/alt-text': 'error',
         'vue-a11y/aria-props': 'error',
         'vue-a11y/aria-role': 'error',
@@ -160,15 +223,6 @@ export function vue(): TypedFlatConfigItem[] {
         'vue-a11y/no-role-presentation-on-focusable': 'error',
         'vue-a11y/role-has-required-aria-props': 'error',
         'vue-a11y/tabindex-no-positive': 'warn',
-
-        // Disabled — too strict for most projects
-        'vue-a11y/anchor-has-content': 'off',
-        'vue-a11y/click-events-have-key-events': 'off',
-        'vue-a11y/mouse-events-have-key-events': 'off',
-        'vue-a11y/label-has-for': 'off',
-        'vue-a11y/no-autofocus': 'off',
-        'vue-a11y/form-control-has-label': 'off',
-        'vue-a11y/no-static-element-interactions': 'off',
       },
     },
   ];

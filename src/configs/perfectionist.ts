@@ -1,11 +1,19 @@
-import type { TypedFlatConfigItem } from '@antfu/eslint-config';
+import { pluginPerfectionist } from '../plugins';
 
-import { GLOB_MARKDOWN, GLOB_MARKDOWN_IN_MARKDOWN } from '@antfu/eslint-config';
+import type { TypedFlatConfigItem } from '../types';
 
+/**
+ * Perfectionist plugin for props and items sorting.
+ *
+ * @see https://github.com/azat-io/eslint-plugin-perfectionist
+ */
 export function perfectionist(): TypedFlatConfigItem[] {
   return [
     {
-      name: 'svifty7/perfectionist/rules',
+      name: 'svifty7/perfectionist/setup',
+      plugins: {
+        perfectionist: pluginPerfectionist,
+      },
       rules: {
         'perfectionist/sort-exports': [
           'error',
@@ -24,34 +32,41 @@ export function perfectionist(): TypedFlatConfigItem[] {
           'error',
           {
             groups: [
+              'builtin',
+              'external',
+              'internal',
+              'tsconfig-path',
+              'subpath',
+              'parent',
+              'sibling',
+              'index',
+              'unknown',
               'type-builtin',
               'type-external',
               ['type-internal', 'type-tsconfig-path', 'type-subpath'],
               ['type-parent', 'type-sibling', 'type-index'],
-
-              'value-builtin',
-              'value-external',
-              'value-internal',
-              ['value-parent', 'value-sibling', 'value-index'],
               'side-effect',
-              'ts-equals-import',
-              'unknown',
+              'side-effect-style',
+              'style',
             ],
-            internalPattern: ['^~/.+', '^~.+', '^#.+', '^@/.+'],
+            internalPattern: ['^~/.+', '^@/.+'],
+            newlinesBetween: 1,
+            order: 'asc',
+            type: 'natural',
             tsconfig: {
               rootDir: process.cwd(),
             },
             fallbackSort: { type: 'unsorted' },
           },
         ],
-      },
-    },
-    {
-      name: 'svifty7/markdown/disables/perfectionist',
-      files: [GLOB_MARKDOWN, GLOB_MARKDOWN_IN_MARKDOWN],
-      rules: {
-        'perfectionist/sort-exports': 'off',
-        'perfectionist/sort-imports': 'off',
+        'perfectionist/sort-named-exports': [
+          'error',
+          { order: 'asc', type: 'natural' },
+        ],
+        'perfectionist/sort-named-imports': [
+          'error',
+          { order: 'asc', type: 'natural' },
+        ],
       },
     },
   ];
