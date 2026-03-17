@@ -1,34 +1,22 @@
-import { GLOB_MARKDOWN, GLOB_TS, GLOB_TSX } from '../globs';
-import { pluginAntfu } from '../plugins';
-import { interopDefault, renameRules } from '../utils';
-
-import type { Linter } from 'eslint';
-
 import type {
   OptionsComponentExts,
   OptionsFiles,
   OptionsProjectType,
-  OptionsTypeScriptErasableOnly,
-  OptionsTypeScriptParserOptions,
-  OptionsTypeScriptWithTypes,
+  OptionsTypescript,
   TypedFlatConfigItem,
 } from '../types';
 
+import { GLOB_MARKDOWN, GLOB_TS, GLOB_TSX } from '../globs';
+import { pluginAntfu } from '../plugins';
+import { ensurePackages, interopDefault, renameRules } from '../utils';
+
 export async function typescript(
   options: OptionsFiles &
+    OptionsTypescript &
     OptionsComponentExts &
-    OptionsTypeScriptWithTypes &
-    OptionsTypeScriptParserOptions &
-    OptionsTypeScriptErasableOnly &
     OptionsProjectType = {},
 ): Promise<TypedFlatConfigItem[]> {
-  const {
-    componentExts = [],
-    overridesTypeAware = {},
-    parserOptions = {},
-    type = 'app',
-    erasableOnly = false,
-  } = options;
+  const { componentExts = [], type = 'app', tsconfigPath } = options;
 
   const filePatterns = options.files ?? [
     GLOB_TS,
@@ -36,9 +24,8 @@ export async function typescript(
     ...componentExts.map((ext) => `**/*.${ext}`),
   ];
 
-  const filesTypeAware = options.filesTypeAware ?? [GLOB_TS, GLOB_TSX];
-  const ignoresTypeAware = options.ignoresTypeAware ?? [`${GLOB_MARKDOWN}/**`];
-  const tsconfigPath = options?.tsconfigPath ? options.tsconfigPath : undefined;
+  const filesTypeAware = [GLOB_TS, GLOB_TSX];
+  const ignoresTypeAware = [`${GLOB_MARKDOWN}/**`];
   const isTypeAware = !!tsconfigPath;
 
   const typeAwareRules: TypedFlatConfigItem['rules'] = {
@@ -68,6 +55,11 @@ export async function typescript(
     'ts/unbound-method': 'error',
   };
 
+  await ensurePackages([
+    '@typescript-eslint/eslint-plugin',
+    '@typescript-eslint/parser',
+  ]);
+
   const [pluginTs, parserTs] = await Promise.all([
     interopDefault(import('@typescript-eslint/eslint-plugin')),
     interopDefault(import('@typescript-eslint/parser')),
@@ -95,7 +87,6 @@ export async function typescript(
                 tsconfigRootDir: process.cwd(),
               }
             : {}),
-          ...(parserOptions as any),
         },
       },
       name: `svifty7/typescript/${typeAware ? 'type-aware-parser' : 'parser'}`,
@@ -122,7 +113,9 @@ export async function typescript(
       rules: {
         ...renameRules(
           pluginTs.configs['eslint-recommended'].overrides![0].rules!,
-          { '@typescript-eslint': 'ts' },
+          {
+            '@typescript-eslint': 'ts',
+          },
         ),
         ...renameRules(pluginTs.configs.strict.rules!, {
           '@typescript-eslint': 'ts',
@@ -239,26 +232,7 @@ export async function typescript(
             name: 'svifty7/typescript/rules-type-aware',
             rules: {
               ...typeAwareRules,
-              ...overridesTypeAware,
             },
-          },
-        ]
-      : []),
-    ...(erasableOnly
-      ? [
-          {
-            name: 'svifty7/typescript/erasable-syntax-only',
-            plugins: {
-              'erasable-syntax-only': await interopDefault(
-                import('eslint-plugin-erasable-syntax-only'),
-              ),
-            },
-            rules: {
-              'erasable-syntax-only/enums': 'error',
-              'erasable-syntax-only/import-aliases': 'error',
-              'erasable-syntax-only/namespaces': 'error',
-              'erasable-syntax-only/parameter-properties': 'error',
-            } as Record<string, Linter.RuleEntry>,
           },
         ]
       : []),

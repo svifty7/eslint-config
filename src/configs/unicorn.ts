@@ -1,9 +1,9 @@
+import type { TypedFlatConfigItem } from '../types';
+
 import { pluginUnicorn } from '../plugins';
 
-import type { OptionsUnicorn, TypedFlatConfigItem } from '../types';
-
-export function unicorn(options: OptionsUnicorn = {}): TypedFlatConfigItem[] {
-  const { allRecommended = false } = options;
+export function unicorn(): TypedFlatConfigItem[] {
+  const allRecommended = false;
 
   return [
     {

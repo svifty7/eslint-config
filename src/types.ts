@@ -1,26 +1,38 @@
-import type { StylisticCustomizeOptions } from '@stylistic/eslint-plugin';
-import type { ParserOptions } from '@typescript-eslint/parser';
+import type { Linter } from 'eslint';
 import type { FlatGitignoreOptions } from 'eslint-config-flat-gitignore';
-import type { Config as VendorPrettierConfig } from 'prettier';
-import type { PluginOptions as TailwindPluginOptions } from 'prettier-plugin-tailwindcss';
-import type { ConfigWithExtends } from 'typescript-eslint';
+import type { ConfigWithExtends } from 'eslint-flat-config-utils';
 
 import type { ConfigNames, RuleOptions } from './typegen';
 
 export type Awaitable<T> = T | Promise<T>;
 
-export interface Rules extends RuleOptions {}
+export type Rules = Record<string, Linter.RuleEntry<any> | undefined> &
+  RuleOptions;
 
-export type { ConfigNames };
+export type { ConfigNames, RuleOptions };
 
-export type TypedFlatConfigItem = Omit<ConfigWithExtends, 'plugins'> & {
-  // Relax plugins type limitation, as most of the plugins did not have correct type info yet.
+/**
+ * An updated version of ESLint's `Linter.Config`, which provides autocompletion
+ * for `rules` and relaxes type limitations for `plugins` and `rules`, because
+ * many plugins still lack proper type definitions.
+ */
+export type TypedFlatConfigItem = Omit<
+  ConfigWithExtends,
+  'plugins' | 'rules'
+> & {
   /**
-   * An object containing a name-value mapping of plugin names to plugin objects. When `files` is specified, these plugins are only available to the matching files.
+   * An object containing a name-value mapping of plugin names to plugin objects.
+   * When `files` is specified, these plugins are only available to the matching files.
    *
    * @see [Using plugins in your configuration](https://eslint.org/docs/latest/user-guide/configuring/configuration-files-new#using-plugins-in-your-configuration)
    */
   plugins?: Record<string, any>;
+
+  /**
+   * An object containing the configured rules. When `files` or `ignores` are
+   * specified, these rule configurations are only available to the matching files.
+   */
+  rules?: Rules;
 };
 
 export interface OptionsFiles {
@@ -30,58 +42,71 @@ export interface OptionsFiles {
   files?: string[];
 }
 
-export type OptionsTypescript =
-  | OptionsTypeScriptWithTypes
-  | OptionsTypeScriptParserOptions
-  | OptionsTypeScriptErasableOnly;
-
-export type DefaultPrettierConfig = Pick<
-  VendorPrettierConfig,
-  | 'semi'
-  | 'singleQuote'
-  | 'tabWidth'
-  | 'useTabs'
-  | 'quoteProps'
-  | 'jsxSingleQuote'
-  | 'trailingComma'
-  | 'bracketSpacing'
-  | 'bracketSameLine'
-  | 'arrowParens'
-  | 'requirePragma'
-  | 'insertPragma'
-  | 'proseWrap'
-  | 'htmlWhitespaceSensitivity'
-  | 'vueIndentScriptAndStyle'
-  | 'endOfLine'
-  | 'singleAttributePerLine'
->;
-
-export interface XmlPrettierConfig {
+export interface OptionsVue {
   /**
-   * How to handle whitespaces in XML.
-   * @default "preserve"
-   */
-  xmlQuoteAttributes?: 'single' | 'double' | 'preserve';
-  /**
-   * Whether to put a space inside the brackets of self-closing XML elements.
-   * @default true
-   */
-  xmlSelfClosingSpace?: boolean;
-  /**
-   * Whether to sort attributes by key in XML elements.
+   * Vue accessibility plugin. Help check a11y issue in `.vue` files upon enabled
+   *
+   * @see https://vue-a11y.github.io/eslint-plugin-vuejs-accessibility/
    * @default false
    */
-  xmlSortAttributesByKey?: boolean;
-  /**
-   * How to handle whitespaces in XML.
-   * @default "ignore"
-   */
-  xmlWhitespaceSensitivity?: 'ignore' | 'strict' | 'preserve';
+  a11y?: boolean;
 }
 
-export type PrettierConfig = DefaultPrettierConfig &
-  XmlPrettierConfig &
-  TailwindPluginOptions;
+export interface OptionsJSX {
+  /**
+   * Enable JSX accessibility rules.
+   *
+   * Requires installing:
+   * - `eslint-plugin-jsx-a11y`
+   *
+   * @default false
+   */
+  a11y?: boolean;
+}
+
+export interface OptionsFormatters {
+  /**
+   * Enable formatting support for CSS, Less, Sass, and SCSS.
+   *
+   * Currently only support Prettier.
+   */
+  css?: boolean;
+
+  /**
+   * Enable formatting support for HTML.
+   *
+   * Currently only support Prettier.
+   */
+  html?: boolean;
+
+  /**
+   * Enable formatting support for XML.
+   *
+   * Currently only support Prettier.
+   */
+  xml?: boolean;
+
+  /**
+   * Enable formatting support for SVG.
+   *
+   * Currently only support Prettier.
+   */
+  svg?: boolean;
+
+  /**
+   * Enable formatting support for Markdown.
+   *
+   * Support only Prettier.
+   *
+   * When set to `true`, it will use Prettier.
+   */
+  markdown?: boolean;
+
+  /**
+   * Enable formatting support for GraphQL.
+   */
+  graphql?: boolean;
+}
 
 export interface OptionsComponentExts {
   /**
@@ -93,66 +118,22 @@ export interface OptionsComponentExts {
   componentExts?: string[];
 }
 
-export interface OptionsUnicorn {
+export interface OptionsMarkdown {
   /**
-   * Include all rules recommended by `eslint-plugin-unicorn`.
+   * Enable GFM (GitHub Flavored Markdown) support.
    *
-   * @default false
+   * @default true
    */
-  allRecommended?: boolean;
+  gfm?: boolean;
 }
 
-export interface OptionsTypeScriptParserOptions {
+export interface OptionsTypescript {
   /**
-   * Additional parser options for TypeScript.
-   */
-  parserOptions?: Partial<ParserOptions>;
-
-  /**
-   * Glob patterns for files that should be type aware.
-   * @default ['**\/*.{ts,tsx}']
-   */
-  filesTypeAware?: string[];
-
-  /**
-   * Glob patterns for files that should not be type aware.
-   * @default ['**\/*.md\/**']
-   */
-  ignoresTypeAware?: string[];
-}
-
-export interface OptionsTypeScriptWithTypes {
-  /**
-   * When this options is provided, type aware rules will be enabled.
+   * Path to tsconfig file for type aware rules.
    * @see https://typescript-eslint.io/linting/typed-linting/
    */
   tsconfigPath?: string;
-
-  /**
-   * Override type aware rules.
-   */
-  overridesTypeAware?: TypedFlatConfigItem['rules'];
 }
-
-export interface OptionsHasTypeScript {
-  typescript?: boolean;
-}
-
-export interface OptionsStylistic {
-  stylistic?: StylisticConfig;
-}
-
-export type StylisticConfig = Omit<
-  StylisticCustomizeOptions,
-  'pluginName' | 'indent'
-> & {
-  indent?: number | 'tab';
-  lessOpinionated?: boolean;
-  /**
-   * Enable jsx-a11y rules.
-   */
-  jsxA11y?: boolean;
-};
 
 export interface OptionsProjectType {
   /**
@@ -165,25 +146,56 @@ export interface OptionsProjectType {
 
 export interface OptionsRegExp {
   /**
-   * Override rulelevels
+   * Override rule levels
    */
   level?: 'error' | 'warn';
 }
 
-export interface OptionsPnpm {
-  catalogs?: boolean;
-  isInEditor?: boolean;
-  json?: boolean;
-  sort?: boolean;
-  yaml?: boolean;
-}
-
-export interface OptionsTypeScriptErasableOnly {
-  erasableOnly?: boolean;
-}
-
 export interface OptionsIsInEditor {
   isInEditor?: boolean;
+}
+
+export interface OptionsPnpm extends OptionsIsInEditor {
+  /**
+   * Requires catalogs usage
+   *
+   * Detects automatically based if `catalogs` is used in the pnpm-workspace.yaml file
+   */
+  catalogs?: boolean;
+
+  /**
+   * Enable linting for package.json, will install the jsonc parser
+   *
+   * @default true
+   */
+  json?: boolean;
+
+  /**
+   * Enable linting for pnpm-workspace.yaml, will install the yaml parser
+   *
+   * @default true
+   */
+  yaml?: boolean;
+
+  /**
+   * Sort entries in pnpm-workspace.yaml
+   *
+   * @default false
+   */
+  sort?: boolean;
+}
+
+export interface OptionsUnoCSS {
+  /**
+   * Enable attributify support.
+   * @default true
+   */
+  attributify?: boolean;
+  /**
+   * Enable strict mode by throwing errors about blocklisted classes.
+   * @default false
+   */
+  strict?: boolean;
 }
 
 export interface OptionsConfig
@@ -199,29 +211,39 @@ export interface OptionsConfig
   gitignore?: boolean | FlatGitignoreOptions;
 
   /**
+   * Extend the global ignores.
+   *
+   * Passing an array to extends the ignores.
+   * Passing a function to modify the default ignores.
+   *
+   * @default []
+   */
+  ignores?: string[] | ((originals: string[]) => string[]);
+
+  /**
+   * Enable JSDoc rules
+   *
+   * Always enabled.
+   */
+  jsdoc?: boolean;
+
+  /**
    * Enable TypeScript support.
    *
    * Passing an object to enable TypeScript Language Server support.
    *
    * @default auto-detect based on the dependencies
    */
-  typescript?: OptionsTypescript;
+  typescript?: boolean | OptionsTypescript;
 
   /**
    * Enable JSX related rules.
    *
-   * Currently only stylistic rules are included.
+   * Passing an object to enable JSX accessibility rules.
    *
    * @default true
    */
-  jsx?: boolean;
-
-  /**
-   * Options for eslint-plugin-unicorn.
-   *
-   * @default true
-   */
-  unicorn?: boolean | OptionsUnicorn;
+  jsx?: boolean | OptionsJSX;
 
   /**
    * Enable test support.
@@ -235,7 +257,7 @@ export interface OptionsConfig
    *
    * @default auto-detect based on the dependencies
    */
-  vue?: OptionsFiles;
+  vue?: boolean | OptionsVue;
 
   /**
    * Enable JSONC support.
@@ -259,36 +281,47 @@ export interface OptionsConfig
   toml?: boolean;
 
   /**
-   * Enable linting for **code snippets** in Markdown.
+   * Enable linting for **code snippets** in Markdown and the markdown content itself.
    *
    * For formatting Markdown content, enable also `formatters.markdown`.
    *
    * @default true
    */
-  markdown?: boolean;
+  markdown?: boolean | OptionsMarkdown;
 
   /**
-   * Enable stylistic rules.
+   * Enable unocss rules.
    *
-   * @see https://eslint.style/
-   * @default true
-   */
-  stylistic?: StylisticConfig;
-
-  /**
-   * Enable regexp rules.
+   * Requires installing:
+   * - `@unocss/eslint-plugin`
    *
-   * @see https://ota-meshi.github.io/eslint-plugin-regexp/
-   * @default true
+   * @default false
    */
-  regexp?: boolean | OptionsRegExp;
+  unocss?: boolean | OptionsUnoCSS;
 
   /**
    * Enable pnpm (workspace/catalogs) support.
    *
-   * @default true
+   * Currently it's disabled by default, as it's still experimental.
+   * In the future it will be smartly enabled based on the project usage.
+   *
+   * @see https://github.com/antfu/pnpm-workspace-utils
+   * @experimental
+   * @default false
    */
   pnpm?: boolean | OptionsPnpm;
+
+  /**
+   * Use external formatters to format files.
+   *
+   * Requires installing:
+   * - `eslint-plugin-format`
+   *
+   * When set to `true`, it will enable all formatters.
+   *
+   * @default false
+   */
+  formatters?: boolean | OptionsFormatters;
 
   /**
    * Control to disable some rules in editors.
@@ -304,4 +337,62 @@ export interface OptionsConfig
   autoRenamePlugins?: boolean;
 
   prettier?: boolean | PrettierConfig;
+
+  /**
+   * Provide overrides for rules for each integration.
+   *
+   * @deprecated use `overrides` option in each integration key instead
+   */
+}
+
+export type PrettierConfig = XmlPrettierConfig & TailwindPluginOptions;
+
+export interface TailwindPluginOptions {
+  /**
+   * Path to the Tailwind config file.
+   */
+  tailwindConfig?: string;
+  /**
+   * Path to the CSS stylesheet used by Tailwind CSS (v4+)
+   */
+  tailwindStylesheet?: string;
+  /**
+   * List of custom function and tag names that contain classes.
+   */
+  tailwindFunctions?: string[];
+  /**
+   * List of custom attributes that contain classes.
+   */
+  tailwindAttributes?: string[];
+  /**
+   * Preserve whitespace around Tailwind classes when sorting.
+   */
+  tailwindPreserveWhitespace?: boolean;
+  /**
+   * Preserve duplicate classes inside a class list when sorting.
+   */
+  tailwindPreserveDuplicates?: boolean;
+}
+
+export interface XmlPrettierConfig {
+  /**
+   * How to handle whitespaces in XML.
+   * @default "preserve"
+   */
+  xmlQuoteAttributes?: 'single' | 'double' | 'preserve';
+  /**
+   * Whether to put a space inside the brackets of self-closing XML elements.
+   * @default true
+   */
+  xmlSelfClosingSpace?: boolean;
+  /**
+   * Whether to sort attributes by key in XML elements.
+   * @default false
+   */
+  xmlSortAttributesByKey?: boolean;
+  /**
+   * How to handle whitespaces in XML.
+   * @default "ignore"
+   */
+  xmlWhitespaceSensitivity?: 'ignore' | 'strict' | 'preserve';
 }

@@ -9,5 +9,5 @@
     "skipLibCheck": true
   },
   "include": ["**/*.ts"],
-  "exclude": ["./fixtures/**/*.*", "./_fixtures/**/*.*"]
+  "exclude": ["./fixtures/**/*.*", "./_fixtures/**/*.*", "./antfu/**/*.*", ".eslint-config-inspector"]
 }

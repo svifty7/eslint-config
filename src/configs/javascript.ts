@@ -1,8 +1,8 @@
+import type { OptionsIsInEditor, TypedFlatConfigItem } from '../types';
+
 import globals from 'globals';
 
 import { pluginAntfu, pluginUnusedImports } from '../plugins';
-
-import type { OptionsIsInEditor, TypedFlatConfigItem } from '../types';
 
 export function javascript(
   options: OptionsIsInEditor = {},

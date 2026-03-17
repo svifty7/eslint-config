@@ -1,16 +1,14 @@
+import type { TypedFlatConfigItem } from '../types';
+
 import { GLOB_VUE } from '../globs';
-import { interopDefault } from '../utils';
+import { ensurePackages, interopDefault } from '../utils';
 
-import type {
-  OptionsFiles,
-  OptionsHasTypeScript,
-  TypedFlatConfigItem,
-} from '../types';
-
-export async function vue(
-  options: OptionsHasTypeScript & OptionsFiles = {},
-): Promise<TypedFlatConfigItem[]> {
-  const { files = [GLOB_VUE] } = options;
+export async function vue(typescript: boolean): Promise<TypedFlatConfigItem[]> {
+  await ensurePackages([
+    'eslint-plugin-vue',
+    'vue-eslint-parser',
+    'eslint-plugin-vuejs-accessibility',
+  ]);
 
   const [pluginVue, parserVue, pluginVueA11y] = await Promise.all([
     interopDefault(import('eslint-plugin-vue')),
@@ -47,7 +45,7 @@ export async function vue(
       },
     },
     {
-      files,
+      files: [GLOB_VUE],
       languageOptions: {
         parser: parserVue,
         parserOptions: {
@@ -55,7 +53,7 @@ export async function vue(
             jsx: true,
           },
           extraFileExtensions: ['.vue'],
-          parser: options.typescript
+          parser: typescript
             ? ((await interopDefault(
                 import('@typescript-eslint/parser'),
               )) as any)

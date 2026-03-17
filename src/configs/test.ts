@@ -1,11 +1,11 @@
-import { GLOB_TESTS } from '../globs';
-import { interopDefault } from '../utils';
-
 import type {
   OptionsFiles,
   OptionsIsInEditor,
   TypedFlatConfigItem,
 } from '../types';
+
+import { GLOB_TESTS } from '../globs';
+import { ensurePackages, interopDefault } from '../utils';
 
 // Hold the reference so we don't redeclare the plugin on each call
 let _pluginTest: any;
@@ -14,6 +14,11 @@ export async function test(
   options: OptionsFiles & OptionsIsInEditor = {},
 ): Promise<TypedFlatConfigItem[]> {
   const { files = GLOB_TESTS, isInEditor = false } = options;
+
+  await ensurePackages([
+    '@vitest/eslint-plugin',
+    'eslint-plugin-no-only-tests',
+  ]);
 
   const [pluginVitest, pluginNoOnlyTests] = await Promise.all([
     interopDefault(import('@vitest/eslint-plugin')),

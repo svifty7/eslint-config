@@ -102,3 +102,4 @@ dist
 src/typegen.d.ts
 .eslint-config-inspector
 antfu
+.agents

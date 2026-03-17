@@ -1,6 +1,6 @@
-import { pluginPerfectionist } from '../plugins';
-
 import type { TypedFlatConfigItem } from '../types';
+
+import { pluginPerfectionist } from '../plugins';
 
 /**
  * Perfectionist plugin for props and items sorting.
@@ -32,24 +32,20 @@ export function perfectionist(): TypedFlatConfigItem[] {
           'error',
           {
             groups: [
-              'builtin',
-              'external',
-              'internal',
-              'tsconfig-path',
-              'subpath',
-              'parent',
-              'sibling',
-              'index',
-              'unknown',
               'type-builtin',
               'type-external',
               ['type-internal', 'type-tsconfig-path', 'type-subpath'],
               ['type-parent', 'type-sibling', 'type-index'],
+
+              'value-builtin',
+              'value-external',
+              'value-internal',
+              ['value-parent', 'value-sibling', 'value-index'],
               'side-effect',
-              'side-effect-style',
-              'style',
+              'ts-equals-import',
+              'unknown',
             ],
-            internalPattern: ['^~/.+', '^@/.+'],
+            internalPattern: ['^~/.+', '^~.+', '^#.+', '^@/.+'],
             newlinesBetween: 1,
             order: 'asc',
             type: 'natural',

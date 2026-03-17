@@ -1,15 +1,21 @@
-import { GLOB_EXCLUDE, GLOB_TS, GLOB_TSX } from '../globs';
-
 import type { TypedFlatConfigItem } from '../types';
 
+import { GLOB_EXCLUDE, GLOB_TS, GLOB_TSX } from '../globs';
+
 export function ignores(
-  userIgnores: string[] = [],
-  ignoreTypeScript: boolean = false,
+  userIgnores: string[] | ((originals: string[]) => string[]) = [],
+  ignoreTypeScript = false,
 ): TypedFlatConfigItem[] {
-  const ignoresArray: string[] = [...GLOB_EXCLUDE, ...userIgnores];
+  let ignoresArray = [...GLOB_EXCLUDE];
 
   if (ignoreTypeScript) {
     ignoresArray.push(GLOB_TS, GLOB_TSX);
+  }
+
+  if (typeof userIgnores === 'function') {
+    ignoresArray = userIgnores(ignoresArray);
+  } else {
+    ignoresArray = [...ignoresArray, ...userIgnores];
   }
 
   return [

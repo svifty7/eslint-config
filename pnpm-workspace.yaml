@@ -1,8 +1,5 @@
-
-trustPolicy: no-downgrade
-
-
 shellEmulator: true
+strictPeerDependencies: false
 
 onlyBuiltDependencies:
   - esbuild

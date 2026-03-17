@@ -1,6 +1,6 @@
-import { configs } from 'eslint-plugin-regexp';
-
 import type { OptionsRegExp, TypedFlatConfigItem } from '../types';
+
+import { configs } from 'eslint-plugin-regexp';
 
 export function regexp(options: OptionsRegExp = {}): TypedFlatConfigItem[] {
   const config = configs['flat/recommended'] as TypedFlatConfigItem;

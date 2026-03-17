@@ -1,9 +1,9 @@
-import { pluginAntfu } from '../plugins';
-import { interopDefault } from '../utils';
-
 import type { StylisticCustomizeOptions } from '@stylistic/eslint-plugin';
 
 import type { TypedFlatConfigItem } from '../types';
+
+import { pluginAntfu } from '../plugins';
+import { interopDefault } from '../utils';
 
 export const StylisticConfigDefaults: Required<StylisticCustomizeOptions> = {
   indent: 2,
@@ -19,6 +19,7 @@ export const StylisticConfigDefaults: Required<StylisticCustomizeOptions> = {
   severity: 'error',
   experimental: false,
 };
+
 export async function stylistic(
   options: Omit<StylisticCustomizeOptions, 'pluginName'> = {},
 ): Promise<TypedFlatConfigItem[]> {
@@ -51,7 +52,6 @@ export async function stylistic(
 
         'style/jsx-curly-brace-presence': 'off', // ts(7027)
         'style/jsx-self-closing-comp': 'off',
-        'style/jsx-sort-props': 'off',
         'style/lines-between-class-members': [
           'error',
           'always',

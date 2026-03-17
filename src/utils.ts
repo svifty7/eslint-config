@@ -1,5 +1,12 @@
 import type { Awaitable, TypedFlatConfigItem } from './types';
 
+import { fileURLToPath } from 'node:url';
+
+import { isPackageExists } from 'local-pkg';
+
+const scopeUrl = fileURLToPath(new URL('.', import.meta.url));
+const isCwdInScope = isPackageExists('@svifty7/eslint-config');
+
 export const parserPlain = {
   meta: {
     name: 'parser-plain',
@@ -67,12 +74,89 @@ export function renameRules(
   );
 }
 
+/**
+ * Rename plugin names a flat configs array
+ *
+ * @example
+ * ```ts
+ * import { renamePluginInConfigs } from '@svifty7/eslint-config'
+ * import someConfigs from './some-configs'
+ *
+ * export default renamePluginInConfigs(someConfigs, {
+ *   '@typescript-eslint': 'ts',
+ *   '@stylistic': 'style',
+ * })
+ * ```
+ */
+export function renamePluginInConfigs(
+  configs: TypedFlatConfigItem[],
+  map: Record<string, string>,
+): TypedFlatConfigItem[] {
+  return configs.map((i) => {
+    const clone = { ...i };
+
+    if (clone.rules) {
+      clone.rules = renameRules(clone.rules, map);
+    }
+
+    if (clone.plugins) {
+      clone.plugins = Object.fromEntries(
+        Object.entries(clone.plugins).map(([key, value]) => {
+          if (key in map) {
+            return [map[key], value];
+          }
+
+          return [key, value];
+        }),
+      );
+    }
+
+    return clone;
+  });
+}
+
+export function toArray<T>(value: T | T[]): T[] {
+  return Array.isArray(value) ? value : [value];
+}
+
 export async function interopDefault<T>(
   m: Awaitable<T>,
 ): Promise<T extends { default: infer U } ? U : T> {
   const resolved = await m;
 
   return (resolved as any).default || resolved;
+}
+
+export function isPackageInScope(name: string): boolean {
+  return isPackageExists(name, { paths: [scopeUrl] });
+}
+
+export async function ensurePackages(
+  packages: (string | undefined)[],
+): Promise<void> {
+  if (process.env.CI || !process.stdout.isTTY || !isCwdInScope) {
+    return;
+  }
+
+  const nonExistingPackages = packages.filter(
+    (i) => i && !isPackageInScope(i),
+  ) as string[];
+
+  if (nonExistingPackages.length === 0) {
+    return;
+  }
+
+  const p = await import('@clack/prompts');
+
+  const result = await p.confirm({
+    message: `${nonExistingPackages.length === 1 ? 'Package is' : 'Packages are'} required for this config: ${nonExistingPackages.join(', ')}. Do you want to install them?`,
+  });
+
+  if (result) {
+    await import('@antfu/install-pkg').then((i) =>
+      i.installPackage(nonExistingPackages, { dev: true }),
+    );
+  }
 }
 
 export function isInEditorEnv(): boolean {
@@ -85,20 +169,20 @@ export function isInEditorEnv(): boolean {
   }
 
   return !!(
-    false ||
     process.env.VSCODE_PID ||
     process.env.VSCODE_CWD ||
     process.env.JETBRAINS_IDE ||
     process.env.VIM ||
-    process.env.NVIM
+    process.env.NVIM ||
+    (process.env.ZED_ENVIRONMENT && !process.env.ZED_TERM)
   );
 }
 
 export function isInGitHooksOrLintStaged(): boolean {
   return !!(
-    false ||
     process.env.GIT_PARAMS ||
     process.env.VSCODE_GIT_COMMAND ||
-    process.env.npm_lifecycle_script?.startsWith('lint-staged')
+    process.env.npm_lifecycle_script?.startsWith('lint-staged') ||
+    process.env.npm_lifecycle_script?.startsWith('nano-staged')
   );
 }

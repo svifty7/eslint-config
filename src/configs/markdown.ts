@@ -1,3 +1,9 @@
+import type {
+  OptionsComponentExts,
+  OptionsFiles,
+  TypedFlatConfigItem,
+} from '../types';
+
 import { mergeProcessors, processorPassThrough } from 'eslint-merge-processors';
 
 import {
@@ -6,12 +12,6 @@ import {
   GLOB_MARKDOWN_IN_MARKDOWN,
 } from '../globs';
 import { interopDefault } from '../utils';
-
-import type {
-  OptionsComponentExts,
-  OptionsFiles,
-  TypedFlatConfigItem,
-} from '../types';
 
 export async function markdown(
   options: OptionsFiles & OptionsComponentExts = {},
@@ -32,7 +32,7 @@ export async function markdown(
       ignores: [GLOB_MARKDOWN_IN_MARKDOWN],
       name: 'svifty7/markdown/processor',
       processor: mergeProcessors([
-        pluginMarkdown.processors!.markdown,
+        pluginMarkdown.processors.markdown,
         processorPassThrough,
       ]),
     },
@@ -47,6 +47,7 @@ export async function markdown(
       rules: {
         ...pluginMarkdown.configs.recommended.at(0)?.rules,
         'markdown/no-missing-label-refs': 'off',
+        'markdown/fenced-code-language': 'off',
       },
     },
     {

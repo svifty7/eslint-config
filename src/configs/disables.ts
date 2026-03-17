@@ -1,6 +1,6 @@
-import { GLOB_SRC, GLOB_SRC_EXT } from '../globs';
-
 import type { TypedFlatConfigItem } from '../types';
+
+import { GLOB_SRC, GLOB_SRC_EXT } from '../globs';
 
 export function disables(): TypedFlatConfigItem[] {
   return [

@@ -1,19 +1,10 @@
+import type { TypedFlatConfigItem } from '../types';
+
 import { GLOB_JSON, GLOB_JSON5, GLOB_JSONC } from '../globs';
-import { interopDefault } from '../utils';
+import { ensurePackages, interopDefault } from '../utils';
 
-import type {
-  OptionsFiles,
-  OptionsStylistic,
-  TypedFlatConfigItem,
-} from '../types';
-
-export async function jsonc(
-  options: OptionsFiles & OptionsStylistic = {},
-): Promise<TypedFlatConfigItem[]> {
-  const { files = [GLOB_JSON, GLOB_JSON5, GLOB_JSONC], stylistic = true } =
-    options;
-
-  const { indent = 2 } = typeof stylistic === 'boolean' ? {} : stylistic;
+export async function jsonc(): Promise<TypedFlatConfigItem[]> {
+  await ensurePackages(['eslint-plugin-jsonc', 'jsonc-eslint-parser']);
 
   const [pluginJsonc, parserJsonc] = await Promise.all([
     interopDefault(import('eslint-plugin-jsonc')),
@@ -28,7 +19,7 @@ export async function jsonc(
       },
     },
     {
-      files,
+      files: [GLOB_JSON, GLOB_JSON5, GLOB_JSONC],
       languageOptions: {
         parser: parserJsonc,
       },
@@ -64,7 +55,7 @@ export async function jsonc(
         'jsonc/array-bracket-spacing': ['error', 'never'],
         'jsonc/comma-dangle': ['error', 'never'],
         'jsonc/comma-style': ['error', 'last'],
-        'jsonc/indent': ['error', indent],
+        'jsonc/indent': ['error', 2],
         'jsonc/key-spacing': [
           'error',
           { afterColon: true, beforeColon: false },

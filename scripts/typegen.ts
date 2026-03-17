@@ -3,57 +3,16 @@ import fs from 'node:fs/promises';
 import { flatConfigsToRulesDTS } from 'eslint-typegen/core';
 import { builtinRules } from 'eslint/use-at-your-own-risk';
 
-import {
-  combine,
-  comments,
-  formatters,
-  imports,
-  javascript,
-  jsdoc,
-  jsonc,
-  jsx,
-  markdown,
-  node,
-  perfectionist,
-  regexp,
-  sortPackageJson,
-  stylistic,
-  test,
-  toml,
-  typescript,
-  unicorn,
-  vue,
-  yaml,
-} from '../src';
+import { configure } from '../src';
+import { CONFIG_PRESET_FULL_ON } from '../src/config-presets';
 
-const configs = await combine(
-  {
-    plugins: {
-      '': {
-        rules: Object.fromEntries(builtinRules.entries()),
-      },
+const configs = await configure(CONFIG_PRESET_FULL_ON).prepend({
+  plugins: {
+    '': {
+      rules: Object.fromEntries(builtinRules.entries()),
     },
   },
-  comments(),
-  formatters(),
-  imports(),
-  javascript(),
-  jsx(),
-  jsdoc(),
-  jsonc(),
-  markdown(),
-  node(),
-  perfectionist(),
-  sortPackageJson(),
-  stylistic(),
-  test(),
-  toml(),
-  regexp(),
-  typescript(),
-  unicorn(),
-  vue(),
-  yaml(),
-);
+});
 
 const configNames = configs.map((i) => i.name).filter(Boolean) as string[];
 

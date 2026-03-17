@@ -1,4 +1,14 @@
+import type { Linter } from 'eslint';
+
+import type {
+  Awaitable,
+  ConfigNames,
+  OptionsConfig,
+  TypedFlatConfigItem,
+} from './types';
+
 import { FlatConfigComposer } from 'eslint-flat-config-utils';
+import { findUpSync } from 'find-up-simple';
 import { isPackageExists } from 'local-pkg';
 
 import {
@@ -24,19 +34,11 @@ import {
   toml,
   typescript,
   unicorn,
+  unocss,
   vue,
   yaml,
 } from './configs';
 import { interopDefault, isInEditorEnv } from './utils';
-
-import type { Linter } from 'eslint';
-
-import type {
-  Awaitable,
-  ConfigNames,
-  OptionsConfig,
-  TypedFlatConfigItem,
-} from './types';
 
 const flatConfigProps = [
   'name',
@@ -53,8 +55,8 @@ const VuePackages = ['vue', 'nuxt', 'vitepress'];
 export const defaultPluginRenaming = {
   '@stylistic': 'style',
   '@typescript-eslint': 'ts',
-  'import-x': 'import',
-  'node': 'node',
+  'import-lite': 'import',
+  'n': 'node',
   'vitest': 'test',
   'yml': 'yaml',
 };
@@ -70,7 +72,7 @@ export const defaultPluginRenaming = {
  *  The merged ESLint configurations.
  */
 export function configure(
-  options: OptionsConfig & Omit<TypedFlatConfigItem, 'files'> = {},
+  options: OptionsConfig & Omit<TypedFlatConfigItem, 'files' | 'ignores'> = {},
   ...userConfigs: Awaitable<
     | TypedFlatConfigItem
     | TypedFlatConfigItem[]
@@ -78,30 +80,21 @@ export function configure(
     | Linter.Config[]
   >[]
 ): FlatConfigComposer<TypedFlatConfigItem, ConfigNames> {
-  const defaultConfig: OptionsConfig & Omit<TypedFlatConfigItem, 'files'> = {
-    autoRenamePlugins: true,
-    componentExts: [],
-    gitignore: true,
-    jsx: true,
-    pnpm: true, // TODO: smart detect
-    regexp: true,
-    typescript: isPackageExists('typescript') ? {} : undefined,
-    unicorn: true,
-    vue: VuePackages.some((i) => isPackageExists(i)) ? {} : undefined,
-    prettier: true,
-  };
-
   const {
-    autoRenamePlugins,
+    autoRenamePlugins = true,
     componentExts = [],
-    gitignore: enableGitignore,
-    jsx: enableJsx,
-    pnpm: enableCatalogs,
-    regexp: enableRegexp,
-    typescript: enableTypeScript,
-    unicorn: enableUnicorn,
-    vue: enableVue,
-  } = Object.assign(defaultConfig, options);
+    gitignore: enableGitignore = true,
+    jsx: enableJsx = true,
+    unocss: enableUnoCSS,
+    pnpm: enableCatalogs = !!findUpSync('pnpm-lock.yaml'),
+    vue: enableVue = VuePackages.some((i) => isPackageExists(i))
+      ? true
+      : undefined,
+    typescript: enableTypeScript = isPackageExists('typescript') ||
+    isPackageExists('@typescript/native-preview')
+      ? true
+      : undefined,
+  } = options;
 
   let isInEditor = options.isInEditor;
 
@@ -114,13 +107,6 @@ export function configure(
         '[@svifty7/eslint-config] Detected running in editor, some rules are disabled.',
       );
     }
-  }
-
-  const stylisticOptions =
-    typeof options.stylistic === 'object' ? options.stylistic : {};
-
-  if (!('jsx' in stylisticOptions)) {
-    stylisticOptions.jsx = enableJsx;
   }
 
   const configs: Awaitable<TypedFlatConfigItem[]>[] = [];
@@ -149,27 +135,18 @@ export function configure(
 
   const typescriptOptions = resolveSubOptions(options, 'typescript');
 
-  // Base configs
+  // Always enabled configs
   configs.push(
     ignores(options.ignores, !enableTypeScript),
     javascript({ isInEditor }),
     comments(),
     node(),
-    jsdoc({
-      stylistic: stylisticOptions,
-    }),
+    jsdoc(),
     imports(),
     command(),
     perfectionist(),
+    unicorn(),
   );
-
-  if (enableUnicorn) {
-    configs.push(unicorn(enableUnicorn === true ? {} : enableUnicorn));
-  }
-
-  if (enableVue) {
-    componentExts.push('vue');
-  }
 
   if (enableJsx) {
     configs.push(jsx());
@@ -185,79 +162,52 @@ export function configure(
     );
   }
 
-  configs.push(
-    stylistic({
-      ...stylisticOptions,
-    }),
-  );
-
-  if (enableRegexp) {
-    configs.push(regexp(typeof enableRegexp === 'boolean' ? {} : enableRegexp));
-  }
+  configs.push(stylistic());
+  configs.push(regexp());
 
   if (options.test ?? true) {
-    configs.push(
-      test({
-        isInEditor,
-      }),
-    );
+    configs.push(test({ isInEditor }));
   }
 
   if (enableVue) {
-    configs.push(
-      vue({
-        ...resolveSubOptions(options, 'vue'),
-        typescript: !!enableTypeScript,
-      }),
-    );
+    componentExts.push('vue');
+
+    configs.push(vue(!!enableTypeScript));
+  }
+
+  if (enableUnoCSS) {
+    configs.push(unocss());
   }
 
   if (options.jsonc ?? true) {
-    configs.push(
-      jsonc({
-        stylistic: stylisticOptions,
-      }),
-      sortPackageJson(),
-      sortTsconfig(),
-    );
+    configs.push(jsonc(), sortPackageJson(), sortTsconfig());
   }
 
   if (enableCatalogs) {
-    configs.push(
-      pnpm({
-        ...resolveSubOptions(options, 'pnpm'),
-      }),
-    );
+    configs.push(pnpm());
   }
 
   if (options.yaml ?? true) {
-    configs.push(
-      yaml({
-        stylistic: stylisticOptions,
-      }),
-    );
+    configs.push(yaml());
   }
 
   if (options.toml ?? true) {
-    configs.push(
-      toml({
-        stylistic: stylisticOptions,
-      }),
-    );
+    configs.push(toml());
   }
 
   if (options.markdown ?? true) {
-    configs.push(
-      markdown({
-        componentExts,
-      }),
-    );
+    configs.push(markdown({ componentExts }));
   }
 
   if (typeof options.prettier === 'object') {
-    configs.push(formatters(options.stylistic, options.prettier));
+    configs.push(
+      formatters({
+        prettier: options.prettier,
+        vue: !!enableVue,
+      }),
+    );
   } else if (options.prettier ?? true) {
-    configs.push(formatters(options.stylistic));
+    configs.push(formatters({ vue: !!enableVue }));
   }
 
   configs.push(disables());

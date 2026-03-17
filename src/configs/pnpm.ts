@@ -1,10 +1,10 @@
+import type { OptionsPnpm, TypedFlatConfigItem } from '../types';
+
 import fs from 'node:fs/promises';
 
 import { findUp } from 'find-up-simple';
 
-import { interopDefault } from '../utils';
-
-import type { OptionsPnpm, TypedFlatConfigItem } from '../types';
+import { ensurePackages, interopDefault } from '../utils';
 
 async function detectCatalogUsage(): Promise<boolean> {
   const workspaceFile = await findUp('pnpm-workspace.yaml');
@@ -21,6 +21,12 @@ async function detectCatalogUsage(): Promise<boolean> {
 export async function pnpm(
   options: OptionsPnpm = {},
 ): Promise<TypedFlatConfigItem[]> {
+  await ensurePackages([
+    'eslint-plugin-pnpm',
+    'eslint-plugin-yml',
+    'yaml-eslint-parser',
+  ]);
+
   const [pluginPnpm, pluginYaml, yamlParser] = await Promise.all([
     interopDefault(import('eslint-plugin-pnpm')),
     interopDefault(import('eslint-plugin-yml')),
@@ -82,7 +88,6 @@ export async function pnpm(
           {
             settings: {
               shellEmulator: true,
-              trustPolicy: 'no-downgrade',
             },
           },
         ],

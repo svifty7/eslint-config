@@ -1,3 +1,11 @@
+import type { BuiltInParserName, RequiredOptions } from 'prettier';
+
+import type {
+  PrettierConfig,
+  TypedFlatConfigItem,
+  XmlPrettierConfig,
+} from '../types';
+
 import { fileURLToPath } from 'node:url';
 
 import { resolveModule } from 'local-pkg';
@@ -15,29 +23,19 @@ import {
   GLOB_VUE,
   GLOB_XML,
 } from '../globs';
-import { interopDefault, parserPlain } from '../utils';
-
+import { ensurePackages, interopDefault, parserPlain } from '../utils';
 import { StylisticConfigDefaults } from './stylistic';
 
-import type { StylisticCustomizeOptions } from '@stylistic/eslint-plugin';
-import type { BuiltInParserName } from 'prettier';
-
-import type {
-  DefaultPrettierConfig,
-  PrettierConfig,
-  TypedFlatConfigItem,
-  XmlPrettierConfig,
-} from '../types';
-
-type PrettierOptions = PrettierConfig & {
-  parser?: BuiltInParserName | 'xml';
-  plugins?: Array<string>;
-  [k: string]: unknown | undefined;
-};
+type PrettierOptions = Omit<RequiredOptions, 'plugins' | 'parser'> &
+  PrettierConfig & {
+    parser: BuiltInParserName | 'xml';
+    plugins?: Array<string>;
+    [k: string]: unknown | undefined;
+  };
 
 function mergePrettierOptions(
-  options: PrettierOptions,
-  overrides: PrettierOptions = {},
+  options: Partial<PrettierOptions>,
+  overrides: Partial<PrettierOptions> = {},
 ): PrettierOptions {
   const config = {
     ...options,
@@ -49,9 +47,8 @@ function mergePrettierOptions(
     return {
       parser: config.parser,
       plugins: config.plugins,
-      bracketSameLine: config.bracketSameLine,
-      singleAttributePerLine: config.singleAttributePerLine,
-      tabWidth: config.tabWidth,
+      bracketSameLine: false,
+      singleAttributePerLine: true,
       xmlQuoteAttributes: config.xmlQuoteAttributes,
       xmlSelfClosingSpace: config.xmlSelfClosingSpace,
       xmlSortAttributesByKey: config.xmlSortAttributesByKey,
@@ -59,23 +56,37 @@ function mergePrettierOptions(
     };
   }
 
-  return config;
+  if (config.plugins && config.plugins.length > 0) {
+    return {
+      ...config,
+      parser: overrides.parser || config.parser || 'typescript',
+    };
+  }
+
+  return {
+    ...config,
+    parser: overrides.parser || config.parser || 'typescript',
+  };
 }
 
 export async function formatters(
-  stylistic: Omit<StylisticCustomizeOptions, 'pluginName'> = {},
-  prettier: Partial<PrettierConfig> = {},
+  options: {
+    prettier?: Partial<PrettierConfig>;
+    vue?: boolean;
+  } = {},
 ): Promise<TypedFlatConfigItem[]> {
   const { indent, quotes, semi } = {
     ...StylisticConfigDefaults,
-    ...stylistic,
   };
 
-  const prettierOptions: Required<DefaultPrettierConfig> = {
+  const { prettier = {}, vue = false } = options;
+
+  const prettierOptions: Partial<PrettierOptions> = {
     semi,
     singleQuote: quotes === 'single',
-    tabWidth: typeof indent === 'number' ? indent : 2,
-    useTabs: indent === 'tab',
+    tabWidth: 2,
+    indent,
+    useTabs: false,
     quoteProps: 'consistent',
     jsxSingleQuote: false,
     trailingComma: 'all',
@@ -89,8 +100,15 @@ export async function formatters(
     vueIndentScriptAndStyle: true,
     endOfLine: 'lf',
     singleAttributePerLine: true,
+    parser: 'typescript',
     ...prettier,
   };
+
+  await ensurePackages([
+    'prettier',
+    'eslint-plugin-format',
+    'prettier-plugin-tailwindcss',
+  ]);
 
   const pluginFormat = await interopDefault(import('eslint-plugin-format'));
 
@@ -108,16 +126,14 @@ export async function formatters(
   ];
 
   configs.push({
-    files: [GLOB_SRC, GLOB_VUE],
+    files: [GLOB_SRC],
     name: 'svifty7/formatter/prettier',
     rules: {
       'format/prettier': [
         'error',
-        tailwindPluginPath
-          ? mergePrettierOptions(prettierOptions, {
-              plugins: [tailwindPluginPath],
-            })
-          : prettierOptions,
+        mergePrettierOptions(prettierOptions, {
+          plugins: tailwindPluginPath ? [tailwindPluginPath] : undefined,
+        }),
       ],
     },
   });
@@ -135,6 +151,7 @@ export async function formatters(
           'error',
           mergePrettierOptions(prettierOptions, {
             parser: 'css',
+            plugins: tailwindPluginPath ? [tailwindPluginPath] : undefined,
           }),
         ],
       },
@@ -189,6 +206,22 @@ export async function formatters(
     },
   });
 
+  if (vue) {
+    configs.push({
+      files: [GLOB_VUE],
+      name: 'svifty7/formatter/vue',
+      rules: {
+        'format/prettier': [
+          'error',
+          mergePrettierOptions(prettierOptions, {
+            parser: 'vue',
+            plugins: tailwindPluginPath ? [tailwindPluginPath] : undefined,
+          }),
+        ],
+      },
+    });
+  }
+
   // Markdown
   configs.push({
     files: [GLOB_MARKDOWN],
@@ -230,6 +263,8 @@ export async function formatters(
     xmlSortAttributesByKey: false,
     xmlWhitespaceSensitivity: 'ignore',
   };
+
+  await ensurePackages(['@prettier/plugin-xml']);
 
   const xmlPluginPath = resolveModule('@prettier/plugin-xml', {
     paths: [fileURLToPath(import.meta.url)],
