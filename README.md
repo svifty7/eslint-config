@@ -8,7 +8,7 @@ An ESLint configuration based on [@antfu/eslint-config](https://github.com/antfu
 
 > [!WARNING]
 >
-> Unlike the original package, I’ve removed functionality related to the automatic installation of packages upon auto-detection. Instead, dependencies are included by default (except for `eslint` and `vue`, which need to be installed separately). Support for React, Svelte, Astro, Solid, and Slidev has been removed, as they are not used in my projects.
+> Unlike the original package, I’ve removed functionality related to the automatic installation of packages upon auto-detection. Instead, dependencies are included by default (except for `eslint`, `vue` and the opt-in `@unocss/eslint-plugin`, which need to be installed separately). Support for React, Svelte, Astro, Solid, and Slidev has been removed, as they are not used in my projects.
 >
 > Instead of relying **solely on ESLint**, I’ve **added Prettier** because I prefer the code output it produces, and conflicting rules have been disabled as a result. Some rules have also been disabled, modified, or added, such as enforcing semicolons.
 >

@@ -1,5 +1,8 @@
 import type { TypedFlatConfigItem } from '../types';
 
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
+
 import { pluginPerfectionist } from '../plugins';
 
 /**
@@ -8,6 +11,9 @@ import { pluginPerfectionist } from '../plugins';
  * @see https://github.com/azat-io/eslint-plugin-perfectionist
  */
 export function perfectionist(): TypedFlatConfigItem[] {
+  // perfectionist throws when `tsconfig` is set but no tsconfig.json can be found
+  const hasTsconfig = existsSync(join(process.cwd(), 'tsconfig.json'));
+
   return [
     {
       name: 'svifty7/perfectionist/setup',
@@ -49,9 +55,7 @@ export function perfectionist(): TypedFlatConfigItem[] {
             newlinesBetween: 1,
             order: 'asc',
             type: 'natural',
-            tsconfig: {
-              rootDir: process.cwd(),
-            },
+            ...(hasTsconfig ? { tsconfig: { rootDir: process.cwd() } } : {}),
             fallbackSort: { type: 'unsorted' },
           },
         ],
