@@ -22,7 +22,7 @@ export function sortImportsOptions(withTsconfig: boolean): SortImportsOptions {
     groups: [
       'type-builtin',
       'type-external',
-      ['type-internal', 'type-tsconfig-path', 'type-subpath'],
+      ['type-internal', 'type-subpath'],
       ['type-parent', 'type-sibling', 'type-index'],
 
       'value-builtin',
