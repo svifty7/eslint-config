@@ -33,8 +33,8 @@
   "scripts": {
     "build": "nr gen && tsdown --clean --dts",
     "stub": "tsdown",
-    "dev": "nlx @eslint/config-inspector --config eslint.config.ts",
-    "build:inspector": "pnpm build && nlx @eslint/config-inspector build",
+    "dev": "eslint-config-inspector --config eslint.config.ts",
+    "build:inspector": "pnpm build && eslint-config-inspector build --config eslint.config.ts --out-dir .eslint-config-inspector",
     "watch": "tsdown --watch",
     "lint": "eslint",
     "lint:fix": "eslint --fix",
