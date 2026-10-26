@@ -64,175 +64,70 @@ export const defaultPluginRenaming = {
   'yml': 'yaml',
 };
 
+type UserConfig = Awaitable<
+  | TypedFlatConfigItem
+  | TypedFlatConfigItem[]
+  | FlatConfigComposer<any, any>
+  | Linter.Config[]
+>;
+
+type FactoryOptions = OptionsConfig
+  & Omit<TypedFlatConfigItem, 'files' | 'ignores'>;
+
+function resolveIsInEditor(options: OptionsConfig): boolean {
+  if (options.isInEditor != null) {
+    return options.isInEditor;
+  }
+
+  const isInEditor = isInEditorEnv();
+
+  if (isInEditor) {
+    console.warn(
+      '[@svifty7/eslint-config] Detected running in editor, some rules are disabled.',
+    );
+  }
+
+  return isInEditor;
+}
+
+function gitignore(
+  options: OptionsConfig['gitignore'],
+): Awaitable<TypedFlatConfigItem[]> {
+  if (!options) {
+    return [];
+  }
+
+  return interopDefault(import('eslint-config-flat-gitignore')).then((r) => [
+    r({
+      name: 'svifty7/gitignore',
+      ...(typeof options === 'boolean' ? { strict: false } : options),
+    }),
+  ]);
+}
+
+function prettier(
+  options: OptionsConfig['prettier'],
+  hasVue: boolean,
+): Awaitable<TypedFlatConfigItem[]> {
+  if (typeof options === 'object') {
+    return formatters({ prettier: options, vue: hasVue });
+  }
+
+  return (options ?? true) ? formatters({ vue: hasVue }) : [];
+}
+
 /**
- * Construct an array of ESLint flat config items.
- *
- * @param {OptionsConfig & TypedFlatConfigItem} options
- *  The options for generating the ESLint configurations.
- * @param {Awaitable<TypedFlatConfigItem | TypedFlatConfigItem[]>[]} userConfigs
- *  The user configurations to be merged with the generated configurations.
- * @returns {Promise<TypedFlatConfigItem[]>}
- *  The merged ESLint configurations.
+ * User can optionally pass a flat config item to the first argument.
+ * We pick the known keys as ESLint would do schema validation.
  */
-// eslint-disable-next-line sonarjs/cognitive-complexity
-export function configure(
-  options: OptionsConfig & Omit<TypedFlatConfigItem, 'files' | 'ignores'> = {},
-  ...userConfigs: Awaitable<
-    | TypedFlatConfigItem
-    | TypedFlatConfigItem[]
-    | FlatConfigComposer<any, any>
-    | Linter.Config[]
-  >[]
-): FlatConfigComposer<TypedFlatConfigItem, ConfigNames> {
-  const {
-    autoRenamePlugins = true,
-    componentExts = [],
-    gitignore: enableGitignore = true,
-    jsx: enableJsx = true,
-    unocss: enableUnoCSS,
-    pnpm: enableCatalogs = !!findUpSync('pnpm-lock.yaml'),
-    vue: enableVue = VuePackages.some((i) => isPackageExists(i))
-      ? true
-      : undefined,
-    typescript: enableTypeScript = isPackageExists('typescript')
-    || isPackageExists('@typescript/native-preview')
-      ? true
-      : undefined,
-  } = options;
-
-  let isInEditor = options.isInEditor;
-
-  if (isInEditor == null) {
-    isInEditor = isInEditorEnv();
-
-    if (isInEditor) {
-      // eslint-disable-next-line no-console
-      console.log(
-        '[@svifty7/eslint-config] Detected running in editor, some rules are disabled.',
-      );
-    }
-  }
-
-  const configs: Awaitable<TypedFlatConfigItem[]>[] = [];
-
-  if (enableGitignore) {
-    if (typeof enableGitignore !== 'boolean') {
-      configs.push(
-        interopDefault(import('eslint-config-flat-gitignore')).then((r) => [
-          r({
-            name: 'svifty7/gitignore',
-            ...enableGitignore,
-          }),
-        ]),
-      );
-    } else {
-      configs.push(
-        interopDefault(import('eslint-config-flat-gitignore')).then((r) => [
-          r({
-            name: 'svifty7/gitignore',
-            strict: false,
-          }),
-        ]),
-      );
-    }
-  }
-
-  const typescriptOptions = resolveSubOptions(options, 'typescript');
-
-  // Always enabled configs
-  configs.push(
-    ignores(options.ignores, !enableTypeScript),
-    javascript({ isInEditor }),
-    comments(),
-    node(),
-    jsdoc(),
-    imports(),
-    command(),
-    perfectionist(),
-    unicorn(),
-    e18e(),
-  );
-
-  if (enableJsx) {
-    configs.push(jsx());
-  }
-
-  if (enableTypeScript) {
-    configs.push(
-      typescript({
-        ...typescriptOptions,
-        componentExts,
-        type: options.type,
-      }),
-    );
-  }
-
-  configs.push(sonarjs());
-  configs.push(stylistic());
-  configs.push(regexp());
-
-  if (options.test ?? true) {
-    configs.push(test({ isInEditor }));
-  }
-
-  if (enableVue) {
-    componentExts.push('vue');
-
-    configs.push(vue(!!enableTypeScript));
-  }
-
-  if (enableUnoCSS) {
-    configs.push(unocss());
-  }
-
-  if (options.jsonc ?? true) {
-    configs.push(jsonc(), sortPackageJson(), sortTsconfig());
-  }
-
-  if (enableCatalogs) {
-    configs.push(
-      pnpm({
-        isInEditor,
-        json: options.jsonc ?? true,
-        yaml: options.yaml ?? true,
-      }),
-    );
-  }
-
-  if (options.yaml ?? true) {
-    configs.push(yaml());
-  }
-
-  if (options.toml ?? true) {
-    configs.push(toml());
-  }
-
-  if (options.markdown ?? true) {
-    configs.push(markdown({ componentExts }));
-  }
-
-  if (typeof options.prettier === 'object') {
-    configs.push(
-      formatters({
-        prettier: options.prettier,
-        vue: !!enableVue,
-      }),
-    );
-  } else if (options.prettier ?? true) {
-    configs.push(formatters({ vue: !!enableVue }));
-  }
-
-  configs.push(disables());
-
+function fusedConfig(options: FactoryOptions): TypedFlatConfigItem[] {
   if ('files' in options) {
     throw new Error(
       '[@svifty7/eslint-config] The first argument should not contain the "files" property as the options are supposed to be global. Place it in the second or later config instead.',
     );
   }
 
-  // User can optionally pass a flat config item to the first argument
-  // We pick the known keys as ESLint would do schema validation
-  const fusedConfig = flatConfigProps.reduce((acc, key) => {
+  const config = flatConfigProps.reduce((acc, key) => {
     if (key in options) {
       acc[key] = options[key] as any;
     }
@@ -240,10 +135,18 @@ export function configure(
     return acc;
   }, {} as TypedFlatConfigItem);
 
-  if (Object.keys(fusedConfig).length) {
-    configs.push([fusedConfig]);
-  }
+  return Object.keys(config).length ? [config] : [];
+}
 
+function compose(
+  configs: Awaitable<TypedFlatConfigItem[]>[],
+  userConfigs: UserConfig[],
+  options: {
+    autoRenamePlugins: boolean;
+    isInEditor: boolean;
+    markdown: boolean;
+  },
+): FlatConfigComposer<TypedFlatConfigItem, ConfigNames> {
   let composer = new FlatConfigComposer<TypedFlatConfigItem, ConfigNames>();
 
   composer = composer.append(...configs, ...(userConfigs as any));
@@ -251,15 +154,15 @@ export function configure(
   // `markdown/gfm` SourceCode lacks JS-only methods like `getAllComments`,
   // so user rules without `files` must not reach `.md` files.
   // See https://github.com/antfu/eslint-config/issues/837
-  if (options.markdown ?? true) {
+  if (options.markdown) {
     composer = composer.setDefaultIgnores((prev) => [...prev, GLOB_MARKDOWN]);
   }
 
-  if (autoRenamePlugins) {
+  if (options.autoRenamePlugins) {
     composer = composer.renamePlugins(defaultPluginRenaming);
   }
 
-  if (isInEditor) {
+  if (options.isInEditor) {
     composer = composer.disableRulesFix(
       [
         'unused-imports/no-unused-imports',
@@ -276,6 +179,90 @@ export function configure(
   }
 
   return composer;
+}
+
+/**
+ * Construct an array of ESLint flat config items.
+ *
+ * @param {OptionsConfig & TypedFlatConfigItem} options
+ *  The options for generating the ESLint configurations.
+ * @param {Awaitable<TypedFlatConfigItem | TypedFlatConfigItem[]>[]} userConfigs
+ *  The user configurations to be merged with the generated configurations.
+ * @returns {Promise<TypedFlatConfigItem[]>}
+ *  The merged ESLint configurations.
+ */
+export function configure(
+  options: FactoryOptions = {},
+  ...userConfigs: UserConfig[]
+): FlatConfigComposer<TypedFlatConfigItem, ConfigNames> {
+  const {
+    autoRenamePlugins = true,
+    componentExts = [],
+    jsonc: enableJsonc = true,
+    jsx: enableJsx = true,
+    markdown: enableMarkdown = true,
+    pnpm: enableCatalogs = !!findUpSync('pnpm-lock.yaml'),
+    test: enableTest = true,
+    toml: enableToml = true,
+    typescript: enableTypeScript = isPackageExists('typescript')
+      || isPackageExists('@typescript/native-preview'),
+    unocss: enableUnoCSS = false,
+    vue: enableVue = VuePackages.some((i) => isPackageExists(i)),
+    yaml: enableYaml = true,
+  } = options;
+
+  const isInEditor = resolveIsInEditor(options);
+
+  const configs: Awaitable<TypedFlatConfigItem[]>[] = [
+    gitignore(options.gitignore ?? true),
+    ignores(options.ignores, !enableTypeScript),
+    javascript({ isInEditor }),
+    comments(),
+    node(),
+    jsdoc(),
+    imports(),
+    command(),
+    perfectionist(),
+    unicorn(),
+    e18e(),
+    enableJsx ? jsx() : [],
+    enableTypeScript
+      ? typescript({
+          ...resolveSubOptions(options, 'typescript'),
+          componentExts,
+          type: options.type,
+        })
+      : [],
+    sonarjs(),
+    stylistic(),
+    regexp(),
+    enableTest ? test({ isInEditor }) : [],
+  ];
+
+  if (enableVue) {
+    componentExts.push('vue');
+    configs.push(vue(!!enableTypeScript));
+  }
+
+  configs.push(
+    enableUnoCSS ? unocss() : [],
+    ...(enableJsonc ? [jsonc(), sortPackageJson(), sortTsconfig()] : []),
+    enableCatalogs
+      ? pnpm({ isInEditor, json: enableJsonc, yaml: enableYaml })
+      : [],
+    enableYaml ? yaml() : [],
+    enableToml ? toml() : [],
+    enableMarkdown ? markdown({ componentExts }) : [],
+    prettier(options.prettier, !!enableVue),
+    disables(),
+    fusedConfig(options),
+  );
+
+  return compose(configs, userConfigs, {
+    autoRenamePlugins,
+    isInEditor,
+    markdown: enableMarkdown,
+  });
 }
 
 export type ResolvedOptions<T> = T extends boolean ? never : NonNullable<T>;
