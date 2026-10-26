@@ -45,7 +45,8 @@
     "gen": "tsx scripts/typegen.ts",
     "prepack": "nr build",
     "release": "bumpp && pnpm publish",
-    "prepare": "simple-git-hooks"
+    "prepare": "simple-git-hooks",
+    "test": "vitest"
   },
   "publishConfig": {
     "access": "public",
@@ -121,7 +122,8 @@
     "tinyglobby": "^0.2.17",
     "tsdown": "^0.23.2",
     "tsx": "^4.23.15",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "vitest": "^5.0.5"
   },
   "simple-git-hooks": {
     "pre-commit": "pnpm nano-staged"

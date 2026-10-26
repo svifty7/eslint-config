@@ -6,4 +6,6 @@ export default configure({
   typescript: true,
   unocss: true,
   vue: true,
+  // Intentionally unformatted inputs and generated outputs
+  ignores: ['fixtures'],
 });

@@ -1,0 +1,7 @@
+{
+  "name": "fixture",
+  "private": true,
+  "scripts": { "build": "tsdown" },
+  "keywords": ["b","a"],
+  "version": "1.0.0"
+}
