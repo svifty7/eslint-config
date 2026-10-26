@@ -10,7 +10,6 @@ export default defineConfig({
   deps: {
     onlyBundle: false,
     neverBundle: [
-      '@antfu/eslint-config',
       '@antfu/install-pkg',
       '@clack/prompts',
       '@e18e/eslint-plugin',

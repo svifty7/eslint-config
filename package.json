@@ -68,7 +68,6 @@
     }
   },
   "dependencies": {
-    "@antfu/eslint-config": "^10.0.0",
     "@antfu/install-pkg": "^2.1.0",
     "@clack/prompts": "^1.8.1",
     "@e18e/eslint-plugin": "^0.8.1",

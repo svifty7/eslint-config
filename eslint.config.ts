@@ -6,5 +6,4 @@ export default configure({
   typescript: true,
   unocss: true,
   vue: true,
-  ignores: ['.agents'],
 });
