@@ -180,17 +180,7 @@ export async function typescript(
             prefer: 'type-imports',
           },
         ],
-        'ts/no-unused-vars': [
-          'error',
-          {
-            args: 'after-used',
-            argsIgnorePattern: '^_',
-            ignoreRestSiblings: true,
-            vars: 'all',
-            varsIgnorePattern: '^_',
-            caughtErrors: 'none',
-          },
-        ],
+        'ts/no-unused-vars': 'off', // handled by unused-imports/no-unused-vars
         'ts/no-shadow': 'error',
         'ts/no-explicit-any': 'off',
         'ts/no-use-before-define': [

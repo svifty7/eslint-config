@@ -72,7 +72,6 @@ export function disables(): TypedFlatConfigItem[] {
         'style/computed-property-spacing': 'off',
         'style/dot-location': 'off',
         'style/eol-last': 'off',
-        'style/func-call-spacing': 'off',
         'style/function-call-argument-newline': 'off',
         'style/function-call-spacing': 'off',
         'style/function-paren-newline': 'off',
