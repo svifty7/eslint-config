@@ -103,3 +103,6 @@ src/typegen.d.ts
 .eslint-config-inspector
 antfu
 .agents
+
+# Test fixtures
+_fixtures

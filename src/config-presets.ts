@@ -1,36 +1,29 @@
 import type { OptionsConfig } from './types';
 
-// @keep-sorted
 export const CONFIG_PRESET_FULL_ON: OptionsConfig = {
-  formatters: true,
   gitignore: true,
-  jsdoc: true,
   jsonc: true,
-  jsx: {
-    a11y: true,
-  },
+  jsx: true,
   markdown: true,
   pnpm: true,
+  prettier: true,
   test: true,
   toml: true,
   typescript: {
     tsconfigPath: 'tsconfig.json',
   },
   unocss: true,
-  vue: {
-    a11y: true,
-  },
+  vue: true,
   yaml: true,
 };
 
 export const CONFIG_PRESET_FULL_OFF: OptionsConfig = {
-  formatters: false,
   gitignore: false,
-  jsdoc: false,
   jsonc: false,
   jsx: false,
   markdown: false,
   pnpm: false,
+  prettier: false,
   test: false,
   toml: false,
   typescript: false,

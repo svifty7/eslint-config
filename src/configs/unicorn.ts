@@ -1,35 +1,34 @@
 import type { TypedFlatConfigItem } from '../types';
 
+import { GLOB_SRC, GLOB_VUE } from '../globs';
 import { pluginUnicorn } from '../plugins';
 
 export function unicorn(): TypedFlatConfigItem[] {
-  const allRecommended = false;
-
   return [
     {
-      name: 'svifty7/unicorn/rules',
+      name: 'svifty7/unicorn/setup',
       plugins: {
         unicorn: pluginUnicorn,
       },
+    },
+    {
+      files: [GLOB_SRC, GLOB_VUE],
+      name: 'svifty7/unicorn/rules',
       rules: {
-        ...(allRecommended
-          ? pluginUnicorn.configs.recommended.rules
-          : {
-              'unicorn/consistent-empty-array-spread': 'error',
-              'unicorn/error-message': 'error',
-              'unicorn/escape-case': 'error',
-              'unicorn/new-for-builtins': 'error',
-              'unicorn/no-instanceof-builtins': 'error',
-              'unicorn/no-new-array': 'error',
-              'unicorn/no-new-buffer': 'error',
-              'unicorn/prefer-dom-node-text-content': 'error',
-              'unicorn/prefer-includes': 'error',
-              'unicorn/prefer-node-protocol': 'error',
-              'unicorn/prefer-number-properties': 'error',
-              'unicorn/prefer-string-starts-ends-with': 'error',
-              'unicorn/prefer-type-error': 'error',
-              'unicorn/throw-new-error': 'error',
-            }),
+        'unicorn/consistent-empty-array-spread': 'error',
+        'unicorn/error-message': 'error',
+        'unicorn/escape-case': 'error',
+        'unicorn/new-for-builtins': 'error',
+        'unicorn/no-instanceof-builtins': 'error',
+        'unicorn/no-new-array': 'error',
+        'unicorn/no-new-buffer': 'error',
+        'unicorn/prefer-dom-node-text-content': 'error',
+        'unicorn/prefer-includes': 'error',
+        'unicorn/prefer-node-protocol': 'error',
+        'unicorn/prefer-number-properties': 'error',
+        'unicorn/prefer-string-starts-ends-with': 'error',
+        'unicorn/prefer-type-error': 'error',
+        'unicorn/throw-new-error': 'error',
       },
     },
   ];

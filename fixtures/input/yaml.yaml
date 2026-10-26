@@ -1,0 +1,8 @@
+key:   "value"
+list:
+  - "a"
+  - b
+
+
+nested:
+    deep: 1

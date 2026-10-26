@@ -8,7 +8,7 @@ An ESLint configuration based on [@antfu/eslint-config](https://github.com/antfu
 
 > [!WARNING]
 >
-> Unlike the original package, I’ve removed functionality related to the automatic installation of packages upon auto-detection. Instead, dependencies are included by default (except for `eslint` and `vue`, which need to be installed separately). Support for React, Svelte, Astro, Solid, and Slidev has been removed, as they are not used in my projects.
+> Unlike the original package, I’ve removed functionality related to the automatic installation of packages upon auto-detection. Instead, dependencies are included by default (except for `eslint`, `vue` and the opt-in `@unocss/eslint-plugin`, which need to be installed separately). Support for React, Svelte, Astro, Solid, and Slidev has been removed, as they are not used in my projects.
 >
 > Instead of relying **solely on ESLint**, I’ve **added Prettier** because I prefer the code output it produces, and conflicting rules have been disabled as a result. Some rules have also been disabled, modified, or added, such as enforcing semicolons.
 >
@@ -22,7 +22,8 @@ An ESLint configuration based on [@antfu/eslint-config](https://github.com/antfu
 - Built on ESLint Flat Config for flexible composition
 - Auto-fixing for most rules
 - Respects .gitignore by default
-- Requires ESLint v9.26.0+. Earlier versions may work with modifications, but they are untested.
+- Modern native APIs via [`@e18e/eslint-plugin`](https://github.com/e18e/eslint-plugin) and duplicated/dead code checks via a subset of [`eslint-plugin-sonarjs`](https://github.com/SonarSource/SonarJS)
+- Requires ESLint v10.4.0+ and Node.js `^22.22.2 || >=24.15.0`
 - Styling rules:
   - Enforced semicolons, single quotes, trailing commas
   - Uses ESLint Stylistic
@@ -43,7 +44,7 @@ And create `eslint.config.js` in your project root:
 
 ```js
 // eslint.config.js
-import configure from '@svifty7/eslint-config';
+import { configure } from '@svifty7/eslint-config';
 
 export default configure();
 ```
@@ -58,8 +59,7 @@ If you still use some configs from the legacy eslintrc format, you can use the [
 ```js
 // eslint.config.js
 import { FlatCompat } from '@eslint/eslintrc';
-
-import configure from '@svifty7/eslint-config';
+import { configure } from '@svifty7/eslint-config';
 
 const compat = new FlatCompat();
 
@@ -152,7 +152,7 @@ Normally you only need to import the `configure` preset:
 
 ```js
 // eslint.config.js
-import configure from '@svifty7/eslint-config';
+import { configure } from '@svifty7/eslint-config';
 
 export default configure();
 ```
@@ -161,7 +161,7 @@ And that's it! Or you can configure each integration individually, for example:
 
 ```js
 // eslint.config.js
-import configure from '@svifty7/eslint-config';
+import { configure } from '@svifty7/eslint-config';
 
 export default configure({
   gitignore: {
@@ -171,23 +171,24 @@ export default configure({
   // Type of the project. 'lib' for libraries, the default is 'app'
   type: 'lib',
 
-  // Stylistic rules enabled by default, you can only customize them:
-  stylistic: {
-    indent: 2, // 4, or 'tab'
-    quotes: 'single', // or 'double'
-  },
-
-  // TypeScript and Vue are autodetected, you can also configure them:
+  // TypeScript, Vue and pnpm are autodetected, you can also toggle them:
   typescript: {
-    tsconfigPath: 'path/to/tsconfig.json', // Path to tsconfig.json
+    tsconfigPath: 'path/to/tsconfig.json', // Enables type aware rules
   },
-  vue: {
-    files: ['**/*.CustomFileFormat'],
-  },
+  vue: true,
+  pnpm: false,
+
+  // Opt-in integrations
+  unocss: true,
 
   // Disable jsonc and yaml support
   jsonc: false,
   yaml: false,
+
+  // Prettier is enabled by default, an object configures its XML and Tailwind CSS plugins
+  prettier: {
+    tailwindStylesheet: './src/styles/main.css',
+  },
 
   // `.eslintignore` is no longer supported in Flat config, use `ignores` instead
   ignores: [
@@ -201,7 +202,7 @@ The `configure` factory function also accepts any number of arbitrary custom con
 
 ```js
 // eslint.config.js
-import configure from '@svifty7/eslint-config';
+import { configure } from '@svifty7/eslint-config';
 
 export default configure(
   {
@@ -309,7 +310,7 @@ This preset will automatically rename the plugins also for your custom configs. 
 If you really want to use the original prefix, you can revert the plugin renaming by:
 
 ```ts
-import configure from '@svifty7/eslint-config';
+import { configure } from '@svifty7/eslint-config';
 
 export default configure().renamePlugins({
   ts: '@typescript-eslint',
@@ -327,7 +328,7 @@ Certain rules would only be enabled in specific files, for example, `ts/*` rules
 
 ```js
 // eslint.config.js
-import configure from '@svifty7/eslint-config';
+import { configure } from '@svifty7/eslint-config';
 
 export default configure(
   {},
@@ -353,7 +354,7 @@ The factory function `configure()` returns a [`FlatConfigComposer` object from `
 
 ```js
 // eslint.config.js
-import configure from '@svifty7/eslint-config';
+import { configure } from '@svifty7/eslint-config';
 
 export default configure()
   // some configs before the main config
@@ -386,22 +387,7 @@ vue-accessibility is enabled by default when vue was detected in your project.
 
 #### Formatters
 
-Prettier formatter is enabled by default to format files that ESLint cannot handle yet (`.css`, `.html`, etc), but you can disable it for some format files. Powered by [`eslint-plugin-format`](https://github.com/antfu/eslint-plugin-format).
-
-```js
-// eslint.config.js
-import configure from '@svifty7/eslint-config';
-
-export default configure({
-  formatters: {
-    /**
-     * Format Markdown files
-     * @default true
-     */
-    markdown: false,
-  },
-});
-```
+Prettier formats JS/TS, Vue, CSS/SCSS/Less, HTML, Markdown, GraphQL, XML and SVG files. Powered by [`eslint-plugin-format`](https://github.com/antfu/eslint-plugin-format), with [`prettier-plugin-tailwindcss`](https://github.com/tailwindlabs/prettier-plugin-tailwindcss) and [`@prettier/plugin-xml`](https://github.com/prettier/plugin-xml). Pass `prettier: false` to turn formatting off.
 
 ### Optional Rules
 
@@ -447,7 +433,7 @@ You can optionally enable the [type aware rules](https://typescript-eslint.io/li
 
 ```js
 // eslint.config.js
-import configure from '@svifty7/eslint-config';
+import { configure } from '@svifty7/eslint-config';
 
 export default configure({
   typescript: {
@@ -470,7 +456,7 @@ This is to prevent unused imports from getting removed by the editor during refa
 
 ```js
 // eslint.config.js
-import configure from '@svifty7/eslint-config';
+import { configure } from '@svifty7/eslint-config';
 
 export default configure({
   isInEditor: false,
@@ -516,6 +502,12 @@ pnpx @eslint/config-inspector
 ### I prefer XXX...
 
 Sure, you can configure and override rules locally in your project to fit your needs. If that still does not work for you, you can always fork this repo and maintain your own.
+
+## Releasing
+
+1. In a branch, run `pnpm release` to bump the version in `package.json` (commit only, no tag or push).
+2. Open a PR and merge it into `main`.
+3. The `Release` workflow runs the checks, publishes the new version to npm, pushes the `v<version>` tag and creates the GitHub release. A merge without a version change publishes nothing.
 
 ## License
 

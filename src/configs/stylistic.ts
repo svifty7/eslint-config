@@ -5,34 +5,22 @@ import type { TypedFlatConfigItem } from '../types';
 import { pluginAntfu } from '../plugins';
 import { interopDefault } from '../utils';
 
-export const StylisticConfigDefaults: Required<StylisticCustomizeOptions> = {
+/**
+ * Code style shared with Prettier. Formatting itself is done by Prettier,
+ * so only rules Prettier doesn't cover are enabled below.
+ */
+export const StylisticConfigDefaults: Required<
+  Pick<StylisticCustomizeOptions, 'indent' | 'quotes' | 'semi'>
+> = {
   indent: 2,
   quotes: 'single',
   semi: true,
-  jsx: true,
-  arrowParens: true,
-  braceStyle: '1tbs',
-  blockSpacing: true,
-  quoteProps: 'consistent-as-needed',
-  commaDangle: 'always-multiline',
-  pluginName: 'style',
-  severity: 'error',
-  experimental: false,
 };
 
-export async function stylistic(
-  options: Omit<StylisticCustomizeOptions, 'pluginName'> = {},
-): Promise<TypedFlatConfigItem[]> {
-  const stylisticConfig = {
-    ...StylisticConfigDefaults,
-    ...options,
-  };
-
+export async function stylistic(): Promise<TypedFlatConfigItem[]> {
   const pluginStylistic = await interopDefault(
     import('@stylistic/eslint-plugin'),
   );
-
-  const config = pluginStylistic.configs.customize(stylisticConfig);
 
   return [
     {
@@ -42,16 +30,9 @@ export async function stylistic(
         style: pluginStylistic,
       },
       rules: {
-        ...config.rules,
-
         'antfu/consistent-chaining': 'error',
-        'antfu/consistent-list-newline': 'off',
-        'antfu/curly': 'off',
-        'antfu/if-newline': 'off',
         'antfu/top-level-function': 'error',
 
-        'style/jsx-curly-brace-presence': 'off', // ts(7027)
-        'style/jsx-self-closing-comp': 'off',
         'style/lines-between-class-members': [
           'error',
           'always',
@@ -175,7 +156,7 @@ export async function stylistic(
             next: 'cjs-export',
           },
         ],
-        'style/spaced-comment': 'off',
+        'style/spaced-comment': ['error', 'always'],
       },
     },
   ];

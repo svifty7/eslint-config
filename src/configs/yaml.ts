@@ -32,6 +32,10 @@ export async function yaml(): Promise<TypedFlatConfigItem[]> {
         'yaml/no-empty-key': 'error',
         'yaml/no-empty-sequence-entry': 'error',
         'yaml/no-irregular-whitespace': 'error',
+        'yaml/no-multiple-empty-lines': [
+          'error',
+          { max: 1, maxBOF: 0, maxEOF: 0 },
+        ],
         'yaml/plain-scalar': 'error',
 
         'yaml/vue-custom-block/no-parsing-error': 'error',
@@ -53,42 +57,6 @@ export async function yaml(): Promise<TypedFlatConfigItem[]> {
           },
         ],
         'yaml/spaced-comment': 'error',
-      },
-    },
-    {
-      files: ['pnpm-workspace.yaml'],
-      name: 'svifty7/yaml/pnpm-workspace',
-      rules: {
-        'yaml/sort-keys': [
-          'error',
-          {
-            order: [
-              'packages',
-              'overrides',
-              'patchedDependencies',
-              'hoistPattern',
-              'catalog',
-              'catalogs',
-
-              'allowedDeprecatedVersions',
-              'allowNonAppliedPatches',
-              'configDependencies',
-              'ignoredBuiltDependencies',
-              'ignoredOptionalDependencies',
-              'neverBuiltDependencies',
-              'onlyBuiltDependencies',
-              'onlyBuiltDependenciesFile',
-              'packageExtensions',
-              'peerDependencyRules',
-              'supportedArchitectures',
-            ],
-            pathPattern: '^$',
-          },
-          {
-            order: { type: 'asc' },
-            pathPattern: '.*',
-          },
-        ],
       },
     },
   ];

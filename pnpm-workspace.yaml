@@ -1,5 +1,6 @@
-shellEmulator: true
+minimumReleaseAgeExcludePrune: true
 strictPeerDependencies: false
+shellEmulator: true
 
 onlyBuiltDependencies:
   - esbuild

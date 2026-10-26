@@ -10,7 +10,6 @@ export default defineConfig({
   deps: {
     onlyBundle: false,
     neverBundle: [
-      '@antfu/eslint-config',
       '@antfu/install-pkg',
       '@clack/prompts',
       '@e18e/eslint-plugin',
@@ -41,12 +40,12 @@ export default defineConfig({
       'eslint-plugin-perfectionist',
       'eslint-plugin-pnpm',
       'eslint-plugin-regexp',
+      'eslint-plugin-sonarjs',
       'eslint-plugin-toml',
       'eslint-plugin-unicorn',
       'eslint-plugin-unused-imports',
       'eslint-plugin-vue',
       'eslint-plugin-yml',
-      'eslint-processor-vue-blocks',
       'globals',
       'local-pkg',
       'parse-gitignore',

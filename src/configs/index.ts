@@ -1,6 +1,7 @@
 export * from './command';
 export * from './comments';
 export * from './disables';
+export * from './e18e';
 export * from './formatters';
 export * from './ignores';
 export * from './imports';
@@ -13,6 +14,7 @@ export * from './node';
 export * from './perfectionist';
 export * from './pnpm';
 export * from './regexp';
+export * from './sonarjs';
 export * from './sort';
 export * from './stylistic';
 export * from './test';

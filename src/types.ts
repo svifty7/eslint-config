@@ -42,72 +42,6 @@ export interface OptionsFiles {
   files?: string[];
 }
 
-export interface OptionsVue {
-  /**
-   * Vue accessibility plugin. Help check a11y issue in `.vue` files upon enabled
-   *
-   * @see https://vue-a11y.github.io/eslint-plugin-vuejs-accessibility/
-   * @default false
-   */
-  a11y?: boolean;
-}
-
-export interface OptionsJSX {
-  /**
-   * Enable JSX accessibility rules.
-   *
-   * Requires installing:
-   * - `eslint-plugin-jsx-a11y`
-   *
-   * @default false
-   */
-  a11y?: boolean;
-}
-
-export interface OptionsFormatters {
-  /**
-   * Enable formatting support for CSS, Less, Sass, and SCSS.
-   *
-   * Currently only support Prettier.
-   */
-  css?: boolean;
-
-  /**
-   * Enable formatting support for HTML.
-   *
-   * Currently only support Prettier.
-   */
-  html?: boolean;
-
-  /**
-   * Enable formatting support for XML.
-   *
-   * Currently only support Prettier.
-   */
-  xml?: boolean;
-
-  /**
-   * Enable formatting support for SVG.
-   *
-   * Currently only support Prettier.
-   */
-  svg?: boolean;
-
-  /**
-   * Enable formatting support for Markdown.
-   *
-   * Support only Prettier.
-   *
-   * When set to `true`, it will use Prettier.
-   */
-  markdown?: boolean;
-
-  /**
-   * Enable formatting support for GraphQL.
-   */
-  graphql?: boolean;
-}
-
 export interface OptionsComponentExts {
   /**
    * Additional extensions for components.
@@ -116,15 +50,6 @@ export interface OptionsComponentExts {
    * @default []
    */
   componentExts?: string[];
-}
-
-export interface OptionsMarkdown {
-  /**
-   * Enable GFM (GitHub Flavored Markdown) support.
-   *
-   * @default true
-   */
-  gfm?: boolean;
 }
 
 export interface OptionsTypescript {
@@ -144,58 +69,8 @@ export interface OptionsProjectType {
   type?: 'app' | 'lib';
 }
 
-export interface OptionsRegExp {
-  /**
-   * Override rule levels
-   */
-  level?: 'error' | 'warn';
-}
-
 export interface OptionsIsInEditor {
   isInEditor?: boolean;
-}
-
-export interface OptionsPnpm extends OptionsIsInEditor {
-  /**
-   * Requires catalogs usage
-   *
-   * Detects automatically based if `catalogs` is used in the pnpm-workspace.yaml file
-   */
-  catalogs?: boolean;
-
-  /**
-   * Enable linting for package.json, will install the jsonc parser
-   *
-   * @default true
-   */
-  json?: boolean;
-
-  /**
-   * Enable linting for pnpm-workspace.yaml, will install the yaml parser
-   *
-   * @default true
-   */
-  yaml?: boolean;
-
-  /**
-   * Sort entries in pnpm-workspace.yaml
-   *
-   * @default false
-   */
-  sort?: boolean;
-}
-
-export interface OptionsUnoCSS {
-  /**
-   * Enable attributify support.
-   * @default true
-   */
-  attributify?: boolean;
-  /**
-   * Enable strict mode by throwing errors about blocklisted classes.
-   * @default false
-   */
-  strict?: boolean;
 }
 
 export interface OptionsConfig
@@ -221,16 +96,9 @@ export interface OptionsConfig
   ignores?: string[] | ((originals: string[]) => string[]);
 
   /**
-   * Enable JSDoc rules
-   *
-   * Always enabled.
-   */
-  jsdoc?: boolean;
-
-  /**
    * Enable TypeScript support.
    *
-   * Passing an object to enable TypeScript Language Server support.
+   * Passing an object to enable type aware rules.
    *
    * @default auto-detect based on the dependencies
    */
@@ -239,11 +107,9 @@ export interface OptionsConfig
   /**
    * Enable JSX related rules.
    *
-   * Passing an object to enable JSX accessibility rules.
-   *
    * @default true
    */
-  jsx?: boolean | OptionsJSX;
+  jsx?: boolean;
 
   /**
    * Enable test support.
@@ -253,11 +119,11 @@ export interface OptionsConfig
   test?: boolean;
 
   /**
-   * Enable Vue support.
+   * Enable Vue support. Accessibility rules are always enabled.
    *
    * @default auto-detect based on the dependencies
    */
-  vue?: boolean | OptionsVue;
+  vue?: boolean;
 
   /**
    * Enable JSONC support.
@@ -281,13 +147,11 @@ export interface OptionsConfig
   toml?: boolean;
 
   /**
-   * Enable linting for **code snippets** in Markdown and the markdown content itself.
-   *
-   * For formatting Markdown content, enable also `formatters.markdown`.
+   * Enable linting for **code snippets** in Markdown and the markdown content itself (GFM).
    *
    * @default true
    */
-  markdown?: boolean | OptionsMarkdown;
+  markdown?: boolean;
 
   /**
    * Enable unocss rules.
@@ -297,31 +161,15 @@ export interface OptionsConfig
    *
    * @default false
    */
-  unocss?: boolean | OptionsUnoCSS;
+  unocss?: boolean;
 
   /**
    * Enable pnpm (workspace/catalogs) support.
    *
-   * Currently it's disabled by default, as it's still experimental.
-   * In the future it will be smartly enabled based on the project usage.
-   *
    * @see https://github.com/antfu/pnpm-workspace-utils
-   * @experimental
-   * @default false
+   * @default auto-detect based on the existence of `pnpm-lock.yaml`
    */
-  pnpm?: boolean | OptionsPnpm;
-
-  /**
-   * Use external formatters to format files.
-   *
-   * Requires installing:
-   * - `eslint-plugin-format`
-   *
-   * When set to `true`, it will enable all formatters.
-   *
-   * @default false
-   */
-  formatters?: boolean | OptionsFormatters;
+  pnpm?: boolean;
 
   /**
    * Control to disable some rules in editors.
@@ -336,13 +184,12 @@ export interface OptionsConfig
    */
   autoRenamePlugins?: boolean;
 
-  prettier?: boolean | PrettierConfig;
-
   /**
-   * Provide overrides for rules for each integration.
+   * Format files with Prettier. Passing an object to configure the XML and Tailwind CSS plugins.
    *
-   * @deprecated use `overrides` option in each integration key instead
+   * @default true
    */
+  prettier?: boolean | PrettierConfig;
 }
 
 export type PrettierConfig = XmlPrettierConfig & TailwindPluginOptions;

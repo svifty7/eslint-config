@@ -52,9 +52,11 @@ export function sortPackageJson(): TypedFlatConfigItem[] {
               'icon',
               'files',
               'engines',
+              'devEngines',
               'activationEvents',
               'contributes',
               'scripts',
+              'scripts-info',
               'peerDependencies',
               'peerDependenciesMeta',
               'dependencies',
@@ -69,6 +71,10 @@ export function sortPackageJson(): TypedFlatConfigItem[] {
               'eslintConfig',
             ],
             pathPattern: '^$',
+          },
+          {
+            order: ['cpu', 'os', 'libc', 'runtime', 'packageManager'],
+            pathPattern: '^devEngines$',
           },
           {
             order: { type: 'asc' },

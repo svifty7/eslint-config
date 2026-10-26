@@ -12,6 +12,7 @@ import {
   GLOB_MARKDOWN_IN_MARKDOWN,
 } from '../globs';
 import { interopDefault } from '../utils';
+import { sortImportsOptions } from './perfectionist';
 
 export async function markdown(
   options: OptionsFiles & OptionsComponentExts = {},
@@ -94,6 +95,9 @@ export async function markdown(
         'no-unused-vars': 'off',
 
         'node/prefer-global/process': 'off',
+
+        // code blocks are virtual files, resolving their imports through tsconfig is meaningless
+        'perfectionist/sort-imports': ['error', sortImportsOptions(false)],
 
         'style/comma-dangle': 'off',
         'style/eol-last': 'off',
