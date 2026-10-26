@@ -34,7 +34,7 @@
     "node": "^22.22.2 || >=24.15.0"
   },
   "scripts": {
-    "build": "nr gen && tsdown --clean --dts",
+    "build": "pnpm gen && tsdown --clean --dts",
     "stub": "tsdown",
     "dev": "eslint-config-inspector --config eslint.config.ts",
     "build:inspector": "pnpm build && eslint-config-inspector build --config eslint.config.ts --out-dir .eslint-config-inspector",
@@ -43,8 +43,8 @@
     "lint:fix": "eslint --fix",
     "type-check": "tsc --noEmit",
     "gen": "tsx scripts/typegen.ts",
-    "prepack": "nr build",
-    "release": "bumpp && pnpm publish",
+    "prepack": "pnpm build",
+    "release": "bumpp --no-tag --no-push",
     "prepare": "simple-git-hooks",
     "test": "vitest"
   },

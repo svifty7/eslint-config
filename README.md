@@ -503,6 +503,12 @@ pnpx @eslint/config-inspector
 
 Sure, you can configure and override rules locally in your project to fit your needs. If that still does not work for you, you can always fork this repo and maintain your own.
 
+## Releasing
+
+1. In a branch, run `pnpm release` to bump the version in `package.json` (commit only, no tag or push).
+2. Open a PR and merge it into `main`.
+3. The `Release` workflow runs the checks, publishes the new version to npm, pushes the `v<version>` tag and creates the GitHub release. A merge without a version change publishes nothing.
+
 ## License
 
 [MIT](./LICENSE) License &copy; 2025-PRESENT [svifty7](https://github.com/svifty7)
