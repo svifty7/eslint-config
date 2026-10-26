@@ -9,7 +9,8 @@ import { afterAll, beforeAll, it } from 'vitest';
 
 import { configure } from '../src/factory';
 
-const tempDir = '_fixtures';
+// Own subdirectory: test files run in parallel and clean up after themselves
+const tempDir = '_fixtures/eslint';
 
 beforeAll(async () => {
   await fs.rm(tempDir, { force: true, recursive: true });
