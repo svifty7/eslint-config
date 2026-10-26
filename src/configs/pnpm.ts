@@ -40,12 +40,14 @@ export async function pnpm(
   await ensurePackages([
     'eslint-plugin-pnpm',
     'eslint-plugin-yml',
+    'jsonc-eslint-parser',
     'yaml-eslint-parser',
   ]);
 
-  const [pluginPnpm, pluginYaml, yamlParser] = await Promise.all([
+  const [pluginPnpm, pluginYaml, jsoncParser, yamlParser] = await Promise.all([
     interopDefault(import('eslint-plugin-pnpm')),
     interopDefault(import('eslint-plugin-yml')),
+    interopDefault(import('jsonc-eslint-parser')),
     interopDefault(import('yaml-eslint-parser')),
   ]);
 
@@ -57,7 +59,11 @@ export async function pnpm(
   if (json) {
     configs.push({
       files: ['package.json', '**/package.json'],
-      language: 'jsonc/x',
+      // a parser rather than the `jsonc/x` language, like the jsonc config:
+      // rules without `files` would crash on a non-JS language
+      languageOptions: {
+        parser: jsoncParser,
+      },
       name: 'svifty7/pnpm/package-json',
       plugins: {
         pnpm: pluginPnpm,
