@@ -47,7 +47,6 @@ export default defineConfig({
       'eslint-plugin-unused-imports',
       'eslint-plugin-vue',
       'eslint-plugin-yml',
-      'eslint-processor-vue-blocks',
       'globals',
       'local-pkg',
       'parse-gitignore',
