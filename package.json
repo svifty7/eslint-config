@@ -126,7 +126,7 @@
   },
   "volta": {
     "pnpm": "10.32.1",
-    "node": "24.21.0"
+    "node": "24.22.1"
   },
   "inlinedDependencies": {
     "@es-joy/jsdoccomment": "0.84.0",
