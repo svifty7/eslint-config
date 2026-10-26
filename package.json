@@ -30,6 +30,9 @@
   "files": [
     "dist"
   ],
+  "engines": {
+    "node": "^22.22.2 || >=24.15.0"
+  },
   "scripts": {
     "build": "nr gen && tsdown --clean --dts",
     "stub": "tsdown",
@@ -127,12 +130,5 @@
   "volta": {
     "pnpm": "10.32.1",
     "node": "24.22.1"
-  },
-  "inlinedDependencies": {
-    "@es-joy/jsdoccomment": "0.84.0",
-    "comment-parser": "1.4.5",
-    "eslint-plugin-command": "3.5.2",
-    "esquery": "1.7.0",
-    "jsdoc-type-pratt-parser": "7.1.1"
   }
 }
