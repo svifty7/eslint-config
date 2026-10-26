@@ -98,6 +98,7 @@
   },
   "dependencies": {
     "@antfu/eslint-config": "^10.0.0",
+    "@e18e/eslint-plugin": "^0.8.1",
     "@eslint-community/eslint-plugin-eslint-comments": "^4.8.1",
     "@eslint/markdown": "^8.0.3",
     "@stylistic/eslint-plugin": "^5.10.0",
@@ -117,6 +118,7 @@
     "eslint-plugin-perfectionist": "^5.13.0",
     "eslint-plugin-pnpm": "^1.9.1",
     "eslint-plugin-regexp": "^3.3.1",
+    "eslint-plugin-sonarjs": "^4.2.2",
     "eslint-plugin-toml": "^1.5.0",
     "eslint-plugin-unicorn": "^79.0.0",
     "eslint-plugin-unused-imports": "^4.4.1",

@@ -1,3 +1,4 @@
+export { default as pluginE18e } from '@e18e/eslint-plugin';
 export { default as pluginComments } from '@eslint-community/eslint-plugin-eslint-comments';
 export { default as pluginAntfu } from 'eslint-plugin-antfu';
 export { default as pluginImportLite } from 'eslint-plugin-import-lite';

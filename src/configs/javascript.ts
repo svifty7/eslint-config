@@ -227,7 +227,6 @@ export function javascript(
         'prefer-promise-reject-errors': 'off',
         'prefer-regex-literals': ['error', { disallowRedundantWrapping: true }],
         'prefer-rest-params': 'error',
-        'prefer-spread': 'error',
         'prefer-template': 'error',
         'require-await': ['error'],
         'symbol-description': 'error',

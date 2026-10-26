@@ -15,6 +15,7 @@ import {
   command,
   comments,
   disables,
+  e18e,
   formatters,
   ignores,
   imports,
@@ -27,6 +28,7 @@ import {
   perfectionist,
   pnpm,
   regexp,
+  sonarjs,
   sortPackageJson,
   sortTsconfig,
   stylistic,
@@ -72,6 +74,7 @@ export const defaultPluginRenaming = {
  * @returns {Promise<TypedFlatConfigItem[]>}
  *  The merged ESLint configurations.
  */
+// eslint-disable-next-line sonarjs/cognitive-complexity
 export function configure(
   options: OptionsConfig & Omit<TypedFlatConfigItem, 'files' | 'ignores'> = {},
   ...userConfigs: Awaitable<
@@ -147,6 +150,7 @@ export function configure(
     command(),
     perfectionist(),
     unicorn(),
+    e18e(),
   );
 
   if (enableJsx) {
@@ -163,6 +167,7 @@ export function configure(
     );
   }
 
+  configs.push(sonarjs());
   configs.push(stylistic());
   configs.push(regexp());
 

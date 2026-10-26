@@ -1,6 +1,6 @@
 import type { TypedFlatConfigItem } from '../types';
 
-import { GLOB_SRC } from '../globs';
+import { GLOB_SRC, GLOB_VUE } from '../globs';
 import { pluginUnicorn } from '../plugins';
 
 export function unicorn(): TypedFlatConfigItem[] {
@@ -12,7 +12,7 @@ export function unicorn(): TypedFlatConfigItem[] {
       },
     },
     {
-      files: [GLOB_SRC],
+      files: [GLOB_SRC, GLOB_VUE],
       name: 'svifty7/unicorn/rules',
       rules: {
         'unicorn/consistent-empty-array-spread': 'error',

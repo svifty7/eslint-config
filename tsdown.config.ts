@@ -41,6 +41,7 @@ export default defineConfig({
       'eslint-plugin-perfectionist',
       'eslint-plugin-pnpm',
       'eslint-plugin-regexp',
+      'eslint-plugin-sonarjs',
       'eslint-plugin-toml',
       'eslint-plugin-unicorn',
       'eslint-plugin-unused-imports',

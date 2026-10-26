@@ -22,6 +22,7 @@ An ESLint configuration based on [@antfu/eslint-config](https://github.com/antfu
 - Built on ESLint Flat Config for flexible composition
 - Auto-fixing for most rules
 - Respects .gitignore by default
+- Modern native APIs via [`@e18e/eslint-plugin`](https://github.com/e18e/eslint-plugin) and duplicated/dead code checks via a subset of [`eslint-plugin-sonarjs`](https://github.com/SonarSource/SonarJS)
 - Requires ESLint v10.4.0+ and Node.js `^22.22.2 || >=24.15.0`
 - Styling rules:
   - Enforced semicolons, single quotes, trailing commas
