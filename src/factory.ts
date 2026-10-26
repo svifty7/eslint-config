@@ -38,6 +38,7 @@ import {
   vue,
   yaml,
 } from './configs';
+import { GLOB_MARKDOWN } from './globs';
 import { interopDefault, isInEditorEnv } from './utils';
 
 const flatConfigProps = [
@@ -184,7 +185,13 @@ export function configure(
   }
 
   if (enableCatalogs) {
-    configs.push(pnpm());
+    configs.push(
+      pnpm({
+        isInEditor,
+        json: options.jsonc ?? true,
+        yaml: options.yaml ?? true,
+      }),
+    );
   }
 
   if (options.yaml ?? true) {
@@ -235,6 +242,13 @@ export function configure(
   let composer = new FlatConfigComposer<TypedFlatConfigItem, ConfigNames>();
 
   composer = composer.append(...configs, ...(userConfigs as any));
+
+  // `markdown/gfm` SourceCode lacks JS-only methods like `getAllComments`,
+  // so user rules without `files` must not reach `.md` files.
+  // See https://github.com/antfu/eslint-config/issues/837
+  if (options.markdown ?? true) {
+    composer = composer.setDefaultIgnores((prev) => [...prev, GLOB_MARKDOWN]);
+  }
 
   if (autoRenamePlugins) {
     composer = composer.renamePlugins(defaultPluginRenaming);
