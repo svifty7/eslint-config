@@ -1,15 +1,18 @@
 import type { Linter } from 'eslint';
 import type { FlatGitignoreOptions } from 'eslint-config-flat-gitignore';
 import type { ConfigWithExtends } from 'eslint-flat-config-utils';
+import type { ESLintRules } from 'eslint/rules';
 
-import type { ConfigNames, RuleOptions } from './typegen';
+import type { RuleOptions as PluginRuleOptions } from './typegen';
 
 export type Awaitable<T> = T | Promise<T>;
+
+export type RuleOptions = PluginRuleOptions & Partial<ESLintRules>;
 
 export type Rules = Record<string, Linter.RuleEntry<any> | undefined>
   & RuleOptions;
 
-export type { ConfigNames, RuleOptions };
+export type { ConfigNames } from './typegen';
 
 /**
  * An updated version of ESLint's `Linter.Config`, which provides autocompletion

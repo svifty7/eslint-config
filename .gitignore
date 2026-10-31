@@ -106,3 +106,6 @@ antfu
 
 # Test fixtures
 _fixtures
+
+# SonarQube
+.scannerwork

@@ -1,7 +1,7 @@
 {
   "name": "@svifty7/eslint-config",
   "type": "module",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "packageManager": "pnpm@10.32.1",
   "description": "ESLint config by svifty7 based on @antfu/eslint-config",
   "author": "svifty7 (https://github.com/svifty7)",
@@ -46,7 +46,8 @@
     "prepack": "pnpm build",
     "release": "bumpp --no-tag --no-push",
     "prepare": "simple-git-hooks",
-    "test": "vitest"
+    "test": "vitest run",
+    "sonar": "quality-scan"
   },
   "publishConfig": {
     "access": "public",
@@ -113,7 +114,9 @@
   "devDependencies": {
     "@arethetypeswrong/core": "^0.18.5",
     "@eslint/config-inspector": "^3.5.0",
+    "@svifty7/quality-plugin": "^0.1.1",
     "@types/node": "^25.9.9",
+    "@vitest/coverage-v8": "5.0.5",
     "bumpp": "^12.3.0",
     "eslint-typegen": "^2.3.1",
     "jiti": "^2.7.0",

@@ -19,17 +19,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@v6
-
-      - name: Set node
-        uses: actions/setup-node@v7
-        with:
-          node-version: lts/*
-          cache: pnpm
-
-      - name: Install
-        run: pnpm install
+      - uses: ./.github/actions/setup
 
       - name: Build
         run: pnpm run gen
@@ -43,17 +33,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@v6
-
-      - name: Set node
-        uses: actions/setup-node@v7
-        with:
-          node-version: lts/*
-          cache: pnpm
-
-      - name: Install
-        run: pnpm install
+      - uses: ./.github/actions/setup
 
       - name: Build
         run: pnpm run gen
@@ -67,20 +47,52 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@v6
-
-      - name: Set node
-        uses: actions/setup-node@v7
-        with:
-          node-version: lts/*
-          cache: pnpm
-
-      - name: Install
-        run: pnpm install
+      - uses: ./.github/actions/setup
 
       - name: Build
         run: pnpm run gen
 
       - name: Test
         run: pnpm run test --run
+
+      - name: Upload reports
+        uses: actions/upload-artifact@v7
+        with:
+          name: coverage
+          path: coverage
+          retention-days: 1
+
+  # SonarQube Cloud detects the branch or pull request on its own. Fork PRs are
+  # skipped because they get no secrets. To enable: import the repository, turn
+  # off Automatic Analysis there, set the SONAR_ORGANIZATION variable and the
+  # SONAR_TOKEN secret.
+  sonar:
+    needs: [lint, typecheck, test]
+    if: >-
+      ${{ vars.SONAR_ORGANIZATION != '' && (
+        github.ref == 'refs/heads/main'
+        || github.event.pull_request.head.repo.full_name == github.repository
+      ) }}
+    runs-on: ubuntu-26.04
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0 # blame data for new code detection
+
+      - uses: ./.github/actions/setup
+
+      - name: Build
+        run: pnpm run gen
+
+      - name: Download reports
+        uses: actions/download-artifact@v8
+        with:
+          name: coverage
+          path: coverage
+
+      - name: SonarQube Cloud
+        run: pnpm run sonar -Dsonar.projectKey="${SONAR_ORGANIZATION}_eslint-config"
+        env:
+          SONAR_HOST_URL: https://sonarcloud.io
+          SONAR_ORGANIZATION: ${{ vars.SONAR_ORGANIZATION }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

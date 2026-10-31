@@ -30,7 +30,7 @@ type PrettierOptions = Omit<RequiredOptions, 'plugins' | 'parser'>
   & PrettierConfig & {
     parser: BuiltInParserName | 'xml';
     plugins?: Array<string>;
-    [k: string]: unknown | undefined;
+    [k: string]: unknown;
   };
 
 function mergePrettierOptions(
@@ -56,16 +56,9 @@ function mergePrettierOptions(
     };
   }
 
-  if (config.plugins && config.plugins.length > 0) {
-    return {
-      ...config,
-      parser: overrides.parser || config.parser || 'typescript',
-    };
-  }
-
   return {
     ...config,
-    parser: overrides.parser || config.parser || 'typescript',
+    parser: config.parser || 'typescript',
   };
 }
 
@@ -125,23 +118,20 @@ export async function formatters(
         format: pluginFormat,
       },
     },
-  ];
-
-  configs.push({
-    files: [GLOB_SRC],
-    name: 'svifty7/formatter/prettier',
-    rules: {
-      'format/prettier': [
-        'error',
-        mergePrettierOptions(prettierOptions, {
-          plugins: tailwindPluginPath ? [tailwindPluginPath] : undefined,
-        }),
-      ],
+    {
+      files: [GLOB_SRC],
+      name: 'svifty7/formatter/prettier',
+      rules: {
+        'format/prettier': [
+          'error',
+          mergePrettierOptions(prettierOptions, {
+            plugins: tailwindPluginPath ? [tailwindPluginPath] : undefined,
+          }),
+        ],
+      },
     },
-  });
 
-  // Styles
-  configs.push(
+    // Styles
     {
       files: [GLOB_CSS, GLOB_POSTCSS],
       languageOptions: {
@@ -188,25 +178,25 @@ export async function formatters(
         ],
       },
     },
-  );
 
-  // HTML
-  configs.push({
-    files: [GLOB_HTML],
-    languageOptions: {
-      parser: parserPlain,
+    // HTML
+    {
+      files: [GLOB_HTML],
+      languageOptions: {
+        parser: parserPlain,
+      },
+      name: 'svifty7/formatter/html',
+      rules: {
+        'format/prettier': [
+          'error',
+          mergePrettierOptions(prettierOptions, {
+            parser: 'html',
+            plugins: tailwindPluginPath ? [tailwindPluginPath] : undefined,
+          }),
+        ],
+      },
     },
-    name: 'svifty7/formatter/html',
-    rules: {
-      'format/prettier': [
-        'error',
-        mergePrettierOptions(prettierOptions, {
-          parser: 'html',
-          plugins: tailwindPluginPath ? [tailwindPluginPath] : undefined,
-        }),
-      ],
-    },
-  });
+  ];
 
   if (vue) {
     configs.push({
@@ -224,40 +214,42 @@ export async function formatters(
     });
   }
 
-  // Markdown
-  configs.push({
-    files: [GLOB_MARKDOWN],
-    languageOptions: {
-      parser: parserPlain,
+  configs.push(
+    // Markdown
+    {
+      files: [GLOB_MARKDOWN],
+      languageOptions: {
+        parser: parserPlain,
+      },
+      name: 'svifty7/formatter/markdown',
+      rules: {
+        'format/prettier': [
+          'error',
+          mergePrettierOptions(prettierOptions, {
+            embeddedLanguageFormatting: 'off',
+            parser: 'markdown',
+          }),
+        ],
+      },
     },
-    name: 'svifty7/formatter/markdown',
-    rules: {
-      'format/prettier': [
-        'error',
-        mergePrettierOptions(prettierOptions, {
-          embeddedLanguageFormatting: 'off',
-          parser: 'markdown',
-        }),
-      ],
-    },
-  });
 
-  // GraphQL
-  configs.push({
-    files: [GLOB_GRAPHQL],
-    languageOptions: {
-      parser: parserPlain,
+    // GraphQL
+    {
+      files: [GLOB_GRAPHQL],
+      languageOptions: {
+        parser: parserPlain,
+      },
+      name: 'svifty7/formatter/graphql',
+      rules: {
+        'format/prettier': [
+          'error',
+          mergePrettierOptions(prettierOptions, {
+            parser: 'graphql',
+          }),
+        ],
+      },
     },
-    name: 'svifty7/formatter/graphql',
-    rules: {
-      'format/prettier': [
-        'error',
-        mergePrettierOptions(prettierOptions, {
-          parser: 'graphql',
-        }),
-      ],
-    },
-  });
+  );
 
   const prettierXmlOptions: Required<XmlPrettierConfig> = {
     xmlQuoteAttributes: 'double',
@@ -272,52 +264,54 @@ export async function formatters(
     paths: [fileURLToPath(import.meta.url)],
   });
 
-  if (!xmlPluginPath) {
+  if (xmlPluginPath) {
+    configs.push(
+      // XML
+      {
+        files: [GLOB_XML],
+        languageOptions: {
+          parser: parserPlain,
+        },
+        name: 'svifty7/formatter/xml',
+        rules: {
+          'format/prettier': [
+            'error',
+            mergePrettierOptions(
+              { ...prettierXmlOptions, ...prettierOptions },
+              {
+                parser: 'xml',
+                plugins: [xmlPluginPath],
+              },
+            ),
+          ],
+        },
+      },
+
+      // SVG
+      {
+        files: [GLOB_SVG],
+        languageOptions: {
+          parser: parserPlain,
+        },
+        name: 'svifty7/formatter/svg',
+        rules: {
+          'format/prettier': [
+            'error',
+            mergePrettierOptions(
+              { ...prettierXmlOptions, ...prettierOptions },
+              {
+                parser: 'xml',
+                plugins: [xmlPluginPath],
+              },
+            ),
+          ],
+        },
+      },
+    );
+  } else {
     console.warn(
       '[@svifty7/eslint-config] Failed to resolve @prettier/plugin-xml',
     );
-  } else {
-    // XML
-    configs.push({
-      files: [GLOB_XML],
-      languageOptions: {
-        parser: parserPlain,
-      },
-      name: 'svifty7/formatter/xml',
-      rules: {
-        'format/prettier': [
-          'error',
-          mergePrettierOptions(
-            { ...prettierXmlOptions, ...prettierOptions },
-            {
-              parser: 'xml',
-              plugins: [xmlPluginPath],
-            },
-          ),
-        ],
-      },
-    });
-
-    // SVG
-    configs.push({
-      files: [GLOB_SVG],
-      languageOptions: {
-        parser: parserPlain,
-      },
-      name: 'svifty7/formatter/svg',
-      rules: {
-        'format/prettier': [
-          'error',
-          mergePrettierOptions(
-            { ...prettierXmlOptions, ...prettierOptions },
-            {
-              parser: 'xml',
-              plugins: [xmlPluginPath],
-            },
-          ),
-        ],
-      },
-    });
   }
 
   return configs;
