@@ -114,7 +114,7 @@
   "devDependencies": {
     "@arethetypeswrong/core": "^0.18.5",
     "@eslint/config-inspector": "^3.5.0",
-    "@svifty7/quality-plugin": "^0.1.1",
+    "@svifty7/quality-plugin": "^0.1.2",
     "@types/node": "^25.9.9",
     "@vitest/coverage-v8": "5.0.5",
     "bumpp": "^12.3.0",
