@@ -17,6 +17,24 @@ export const StylisticConfigDefaults: Required<
   semi: true,
 };
 
+const MULTILINE_STATEMENTS = [
+  'multiline-const',
+  'multiline-expression',
+  'multiline-let',
+  'multiline-var',
+] as const;
+
+const STATEMENTS_WITHOUT_PADDING = [
+  'singleline-const',
+  'singleline-let',
+  'singleline-var',
+  'directive',
+  'import',
+  'export',
+  'cjs-import',
+  'cjs-export',
+] as const;
+
 export async function stylistic(): Promise<TypedFlatConfigItem[]> {
   const pluginStylistic = await interopDefault(
     import('@stylistic/eslint-plugin'),
@@ -83,21 +101,11 @@ export async function stylistic(): Promise<TypedFlatConfigItem[]> {
           {
             blankLine: 'always',
             prev: '*',
-            next: [
-              'multiline-const',
-              'multiline-expression',
-              'multiline-let',
-              'multiline-var',
-            ],
+            next: [...MULTILINE_STATEMENTS],
           },
           {
             blankLine: 'always',
-            prev: [
-              'multiline-const',
-              'multiline-expression',
-              'multiline-let',
-              'multiline-var',
-            ],
+            prev: [...MULTILINE_STATEMENTS],
             next: '*',
           },
           {
@@ -115,46 +123,11 @@ export async function stylistic(): Promise<TypedFlatConfigItem[]> {
             prev: ['case', 'default'],
             next: ['case', 'default'],
           },
-          {
-            blankLine: 'any',
-            prev: 'singleline-const',
-            next: 'singleline-const',
-          },
-          {
-            blankLine: 'any',
-            prev: 'singleline-let',
-            next: 'singleline-let',
-          },
-          {
-            blankLine: 'any',
-            prev: 'singleline-var',
-            next: 'singleline-var',
-          },
-          {
-            blankLine: 'any',
-            prev: 'directive',
-            next: 'directive',
-          },
-          {
-            blankLine: 'any',
-            prev: 'import',
-            next: 'import',
-          },
-          {
-            blankLine: 'any',
-            prev: 'export',
-            next: 'export',
-          },
-          {
-            blankLine: 'any',
-            prev: 'cjs-import',
-            next: 'cjs-import',
-          },
-          {
-            blankLine: 'any',
-            prev: 'cjs-export',
-            next: 'cjs-export',
-          },
+          ...STATEMENTS_WITHOUT_PADDING.map((statement) => ({
+            blankLine: 'any' as const,
+            prev: statement,
+            next: statement,
+          })),
         ],
         'style/spaced-comment': ['error', 'always'],
       },

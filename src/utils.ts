@@ -34,7 +34,9 @@ export const parserPlain = {
 export async function combine(
   ...configs: Awaitable<TypedFlatConfigItem | TypedFlatConfigItem[]>[]
 ): Promise<TypedFlatConfigItem[]> {
-  const resolved = await Promise.all(configs);
+  const resolved = await Promise.all(
+    configs.map((config) => Promise.resolve(config)),
+  );
 
   return resolved.flat();
 }

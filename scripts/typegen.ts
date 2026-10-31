@@ -1,18 +1,11 @@
 import fs from 'node:fs/promises';
 
 import { flatConfigsToRulesDTS } from 'eslint-typegen/core';
-import { builtinRules } from 'eslint/use-at-your-own-risk';
 
 import { configure } from '../src';
 import { CONFIG_PRESET_FULL_ON } from '../src/config-presets';
 
-const configs = await configure(CONFIG_PRESET_FULL_ON).prepend({
-  plugins: {
-    '': {
-      rules: Object.fromEntries(builtinRules.entries()),
-    },
-  },
-});
+const configs = await configure(CONFIG_PRESET_FULL_ON);
 
 const configNames = configs.map((i) => i.name).filter(Boolean) as string[];
 

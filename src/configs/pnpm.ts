@@ -5,6 +5,7 @@ import fs from 'node:fs/promises';
 import { findUp } from 'find-up-simple';
 
 import { ensurePackages, interopDefault } from '../utils';
+import pnpmWorkspaceOrder from './order/pnpm-workspace.json';
 
 interface PnpmOptions extends OptionsIsInEditor {
   /**
@@ -90,286 +91,67 @@ export async function pnpm(
   }
 
   if (yaml) {
-    configs.push({
-      files: ['pnpm-workspace.yaml'],
-      languageOptions: {
-        parser: yamlParser,
-      },
-      name: 'svifty7/pnpm/pnpm-workspace-yaml',
-      plugins: {
-        pnpm: pluginPnpm,
-      },
-      rules: {
-        'pnpm/yaml-enforce-settings': [
-          'error',
-          {
-            settings: {
-              minimumReleaseAgeExcludePrune: true,
-              shellEmulator: true,
+    configs.push(
+      {
+        files: ['pnpm-workspace.yaml'],
+        languageOptions: {
+          parser: yamlParser,
+        },
+        name: 'svifty7/pnpm/pnpm-workspace-yaml',
+        plugins: {
+          pnpm: pluginPnpm,
+        },
+        rules: {
+          'pnpm/yaml-enforce-settings': [
+            'error',
+            {
+              settings: {
+                minimumReleaseAgeExcludePrune: true,
+                shellEmulator: true,
+              },
             },
-          },
-        ],
-        'pnpm/yaml-no-duplicate-catalog-item': 'error',
-        'pnpm/yaml-no-unused-catalog-item': 'error',
+          ],
+          'pnpm/yaml-no-duplicate-catalog-item': 'error',
+          'pnpm/yaml-no-unused-catalog-item': 'error',
+        },
       },
-    });
-
-    configs.push({
-      files: ['pnpm-workspace.yaml'],
-      languageOptions: {
-        parser: yamlParser,
+      {
+        files: ['pnpm-workspace.yaml'],
+        languageOptions: {
+          parser: yamlParser,
+        },
+        name: 'svifty7/pnpm/pnpm-workspace-yaml-blank-lines',
+        plugins: {
+          pnpm: pluginPnpm,
+        },
+        rules: {
+          'pnpm/yaml-blank-lines': 'error',
+        },
       },
-      name: 'svifty7/pnpm/pnpm-workspace-yaml-blank-lines',
-      plugins: {
-        pnpm: pluginPnpm,
+      {
+        files: ['pnpm-workspace.yaml'],
+        languageOptions: {
+          parser: yamlParser,
+        },
+        name: 'svifty7/pnpm/pnpm-workspace-yaml-sort',
+        plugins: {
+          yaml: pluginYaml,
+        },
+        rules: {
+          'yaml/sort-keys': [
+            'error',
+            {
+              order: Object.values(pnpmWorkspaceOrder).flat(),
+              pathPattern: '^$',
+            },
+            {
+              order: { type: 'asc' },
+              pathPattern: '.*',
+            },
+          ],
+        },
       },
-      rules: {
-        'pnpm/yaml-blank-lines': 'error',
-      },
-    });
-
-    configs.push({
-      files: ['pnpm-workspace.yaml'],
-      languageOptions: {
-        parser: yamlParser,
-      },
-      name: 'svifty7/pnpm/pnpm-workspace-yaml-sort',
-      plugins: {
-        yaml: pluginYaml,
-      },
-      rules: {
-        'yaml/sort-keys': [
-          'error',
-          {
-            order: [
-              // Workspace
-              ...[
-                'dedupeInjectedDeps',
-                'disallowWorkspaceCycles',
-                'failIfNoMatch',
-                'ignoreWorkspaceCycles',
-                'ignoreWorkspaceRootCheck',
-                'includeWorkspaceRoot',
-                'injectWorkspacePackages',
-                'legacyDirFiltering',
-                'linkWorkspacePackages',
-                'preferWorkspacePackages',
-                'saveWorkspaceProtocol',
-                'sharedWorkspaceLockfile',
-                'syncInjectedDepsAfterScripts',
-              ],
-
-              // Catalogs
-              ...['catalogMode', 'catalogPrune', 'cleanupUnusedCatalogs'],
-
-              // Dependency resolution
-              ...[
-                'allowedDeprecatedVersions',
-                'blockExoticSubdeps',
-                'ignoredOptionalDependencies',
-                'minimumReleaseAge',
-                'minimumReleaseAgeIgnoreMissingTime',
-                'minimumReleaseAgeStrict',
-                'minimumReleaseAgeExcludePrune',
-                'minimumReleaseAgeExclude',
-                'registrySupportsTimeField',
-                'resolutionMode',
-                'supportedArchitectures',
-                'trustLockfile',
-                'trustPolicy',
-                'trustPolicyIgnoreAfter',
-                'trustPolicyExclude',
-                'update',
-              ],
-
-              // Peer dependencies
-              ...[
-                'autoInstallPeers',
-                'dedupePeerDependents',
-                'dedupePeers',
-                'peerDependencyRules',
-                'resolvePeersFromWorkspaceRoot',
-                'strictPeerDependencies',
-              ],
-
-              // Registry and network
-              ...[
-                'fetchMinSpeedKiBps',
-                'fetchRetries',
-                'fetchRetryFactor',
-                'fetchRetryMaxtimeout',
-                'fetchRetryMintimeout',
-                'fetchTimeout',
-                'fetchWarnTimeoutMs',
-                'gitShallowHosts',
-                'httpProxy',
-                'httpsProxy',
-                'localAddress',
-                'maxsockets',
-                'namedRegistries',
-                'networkConcurrency',
-                'noProxy',
-                'registries',
-                'registry',
-                'strictSsl',
-              ],
-
-              // node_modules
-              ...[
-                'dlxCacheMaxAge',
-                'enableGlobalVirtualStore',
-                'enableModulesDir',
-                'extendNodePath',
-                'modulesCacheMaxAge',
-                'modulesDir',
-                'nodeExperimentalPackageMap',
-                'nodeLinker',
-                'nodePackageMapType',
-                'packageImportMethod',
-                'preferSymlinkedExecutables',
-                'symlink',
-                'virtualStoreDir',
-                'virtualStoreDirMaxLength',
-                'virtualStoreOnly',
-                'virtualStoreType',
-              ],
-
-              // Hoisting
-              ...[
-                'hoist',
-                'hoistingLimits',
-                'hoistPattern',
-                'hoistWorkspacePackages',
-                'publicHoistPattern',
-                'shamefullyHoist',
-              ],
-
-              // Store
-              ...[
-                'frozenStore',
-                'storeDir',
-                'strictStorePkgContentCheck',
-                'useRunningStoreServer',
-                'verifyStoreIntegrity',
-              ],
-
-              // Lockfile
-              ...[
-                'gitBranchLockfile',
-                'lockfile',
-                'lockfileIncludeTarballUrl',
-                'mergeGitBranchLockfilesBranchPattern',
-                'peersSuffixMaxLength',
-                'preferFrozenLockfile',
-              ],
-
-              // Scripts and builds
-              ...[
-                'childConcurrency',
-                'dangerouslyAllowAllBuilds',
-                'enablePrePostScripts',
-                'ignoreDepScripts',
-                'ignoreScripts',
-                'nodeOptions',
-                'requiredScripts',
-                'scriptShell',
-                'shellEmulator',
-                'sideEffectsCache',
-                'sideEffectsCacheReadonly',
-                'strictDepBuilds',
-                'unsafePerm',
-                'verifyDepsBeforeRun',
-              ],
-
-              // Node.js and package manager versions
-              ...[
-                'managePackageManagerVersions',
-                'nodeDownloadMirrors',
-                'nodeVersion',
-                'packageManagerStrict',
-                'packageManagerStrictVersion',
-                'pmOnFail',
-                'runtimeOnFail',
-              ],
-
-              // CLI and output
-              ...[
-                'ci',
-                'color',
-                'engineStrict',
-                'loglevel',
-                'npmPath',
-                'recursiveInstall',
-                'updateNotifier',
-                'useBetaCli',
-                'useStderr',
-              ],
-
-              // Directories and pnpmfile
-              ...[
-                'cacheDir',
-                'globalBinDir',
-                'globalDir',
-                'globalPnpmfile',
-                'globalShims',
-                'ignorePnpmfile',
-                'npmrcAuthFile',
-                'pnpmfile',
-                'stateDir',
-              ],
-
-              // Audit and versioning
-              ...['audit', 'versioning'],
-
-              // Misc
-              ...[
-                'allowNonAppliedPatches',
-                'dedupeDirectDeps',
-                'deployAllFiles',
-                'ignoreCompatibilityDb',
-                'initAuthorEmail',
-                'initAuthorName',
-                'initAuthorUrl',
-                'initLicense',
-                'initVersion',
-                'optimisticRepeatInstall',
-                'saveExact',
-                'savePrefix',
-                'tag',
-              ],
-
-              // Workspace layout and dependency declarations, ordered by how
-              // a `pnpm-workspace.yaml` usually reads top to bottom
-              'packages',
-              'packageConfigs',
-              'overrides',
-              'packageExtensions',
-              'patchedDependencies',
-              'configDependencies',
-
-              // Build approvals
-              'allowBuilds',
-              // Superseded by `allowBuilds` in pnpm v11
-              ...[
-                'ignoredBuiltDependencies',
-                'neverBuiltDependencies',
-                'onlyBuiltDependencies',
-                'onlyBuiltDependenciesFile',
-              ],
-
-              // Catalogs, usually the largest blocks
-              'catalog',
-              'catalogs',
-            ],
-            pathPattern: '^$',
-          },
-          {
-            order: { type: 'asc' },
-            pathPattern: '.*',
-          },
-        ],
-      },
-    });
+    );
   }
 
   return configs;

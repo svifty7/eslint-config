@@ -57,12 +57,10 @@ export async function test(
         'test/prefer-lowercase-title': 'error',
 
         // Disables
-        ...{
-          'antfu/no-top-level-await': 'off',
-          'no-unused-expressions': 'off',
-          'node/prefer-global/process': 'off',
-          'ts/explicit-function-return-type': 'off',
-        },
+        'antfu/no-top-level-await': 'off',
+        'no-unused-expressions': 'off',
+        'node/prefer-global/process': 'off',
+        'ts/explicit-function-return-type': 'off',
       },
     },
   ];
